@@ -81,7 +81,7 @@ const LOCATIONS = [
   { id: "meksyk",    name: "Meksyk",    emoji: "🇲🇽", lat: 19.4,  lon: -99.1, game: "cups",
     title: "Pod którym kapeluszem ukrył się ulubiony napój Strenci9?", desc: "Obserwuj uważnie 👀",
     bg: ["assets/photos/MEKSYK/01.jpeg", "assets/photos/MEKSYK/02.jpeg", "assets/photos/MEKSYK/03.jpeg", "assets/photos/MEKSYK/04.jpeg"],
-    win: { title: "DOBRZE!", text: "Ale coronki to bym się napił..." } },
+    win: { title: "DOBRZE!", text: "Ale coronki to bym się napił...", photo: "assets/photos/MEKSYK/meksyk-win.jpeg" } },
   { id: "anglia",    name: "Anglia",    emoji: "🏴", lat: 53.5,  lon: -2.2,  game: "manchester",
     title: "JAKI JEST MANCHESTER?", desc: "",
     bg: ["assets/photos/ANGLIA/01.jpg", "assets/photos/ANGLIA/02.jpg", "assets/photos/ANGLIA/03.jpg", "assets/photos/ANGLIA/04.jpg"],

@@ -144,13 +144,17 @@ function openLocation(i) {
   });
 
   // karuzela zdjęć w tle gry (jeśli lokacja ma listę bg)
+  // dodawana do #game-screen (pełna szerokość), pod treść gry — bezpieczne dla iOS Safari
+  const gameScreen = document.getElementById("game-screen");
+  const oldBg = gameScreen.querySelector(".bg-carousel");
+  if (oldBg) oldBg.remove();
   if (loc.bg && loc.bg.length) {
     const imgs = loc.bg.map((src) => `<img src="${src}" alt="" />`).join("");
     const carousel = document.createElement("div");
     carousel.className = "bg-carousel";
     carousel.setAttribute("aria-hidden", "true");
     carousel.innerHTML = `<div class="bg-track">${imgs}${imgs}</div>`;
-    gameContent.appendChild(carousel);
+    gameScreen.appendChild(carousel);
   }
 }
 

@@ -173,10 +173,11 @@ body{
 .back-btn:active{transform:scale(.95);}
 .game-content{max-width:520px; margin:0 auto; text-align:center; position:relative; z-index:1;}
 
-/* karuzela zdjęć jako tło gry — przesuwa się prawo→lewo */
+/* karuzela zdjęć jako tło gry — przesuwa się prawo→lewo
+   (position:absolute + z-index:0 zamiast fixed/-1 — bezpieczne dla iOS Safari) */
 .bg-carousel{
-  position:fixed; inset:0; width:100%; height:100%; overflow:hidden;
-  z-index:-1; pointer-events:none;
+  position:absolute; inset:0; width:100%; height:100%; overflow:hidden;
+  z-index:0; pointer-events:none;
 }
 .bg-carousel::after{ /* przyciemnienie dla czytelności gry */
   content:""; position:absolute; inset:0; background:rgba(10,6,4,.62);
