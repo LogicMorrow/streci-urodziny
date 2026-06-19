@@ -61,7 +61,7 @@ function gameCups(el, loc, cb) {
     const h = document.createElement("div");
     h.className = "hat";
     h.dataset.hat = i;
-    h.innerHTML = `<img class="beer" src="assets/photos/corona.png" alt="Corona" /><img class="hat-img" src="assets/photos/kapelusz.png" alt="kapelusz" />`;
+    h.innerHTML = `<img class="beer" src="assets/photos/corona.webp" alt="Corona" /><img class="hat-img" src="assets/photos/kapelusz.webp" alt="kapelusz" />`;
     stage.appendChild(h);
     return h;
   });
@@ -138,11 +138,11 @@ function gameManchester(el, loc, cb) {
     `<div class="mc-prompt" id="mc-prompt"></div>
      <div class="mc-cards">
        <button class="mc-card red" id="mc-red">
-         <img src="assets/photos/logo-manunited.png" alt="Manchester United" />
+         <img src="assets/photos/logo-manunited.webp" alt="Manchester United" />
          <span class="mc-label">THE RED</span>
        </button>
        <button class="mc-card blue" id="mc-blue">
-         <img src="assets/photos/MAN-CITY.png" alt="Manchester City" />
+         <img src="assets/photos/MAN-CITY.webp" alt="Manchester City" />
          <span class="mc-label">THE BLUE</span>
        </button>
      </div>`;
@@ -279,7 +279,7 @@ function gamePhotoQuiz(el, loc, cb) {
   const opts = loc.options || [];
   el.innerHTML =
     gameHeader(loc) +
-    `<div class="photo-choices">` +
+    `<div class="photo-choices count-${opts.length}">` +
     opts
       .map(
         (o) =>
@@ -302,11 +302,14 @@ function gamePhotoQuiz(el, loc, cb) {
 /* ================= QUIZ Z NAGRANIEM (np. Indonezja) ================= */
 function gameVideoQuiz(el, loc, cb) {
   const opts = loc.options || [];
+  const videoHTML = loc.video
+    ? `<video class="quiz-video" controls playsinline preload="metadata">
+         <source src="${loc.video}" type="video/mp4" />
+       </video>`
+    : "";
   el.innerHTML =
     gameHeader(loc) +
-    `<video class="quiz-video" controls playsinline preload="metadata">
-       <source src="${loc.video}" type="video/mp4" />
-     </video>` +
+    videoHTML +
     (loc.caption ? `<p class="quiz-caption">${loc.caption}</p>` : "") +
     `<div class="quiz-opts">` +
     opts
@@ -316,6 +319,14 @@ function gameVideoQuiz(el, loc, cb) {
       )
       .join("") +
     `</div>`;
+
+  // ścisz muzykę w tle, gdy gra nagranie
+  const vid = el.querySelector(".quiz-video");
+  if (vid) {
+    vid.addEventListener("play", () => { if (typeof duckMusic === "function") duckMusic(); });
+    vid.addEventListener("pause", () => { if (typeof unduckMusic === "function") unduckMusic(); });
+    vid.addEventListener("ended", () => { if (typeof unduckMusic === "function") unduckMusic(); });
+  }
 
   el.querySelectorAll(".quiz-opt").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -341,6 +352,7 @@ const GAMES = {
   alicante: gameAlicante,
   photoquiz: gamePhotoQuiz,
   videoquiz: gameVideoQuiz,
+  choice: gameVideoQuiz, // wybór tekstowy bez nagrania (np. Jordania)
   draw: gameDraw,
   placeholder: gamePlaceholder,
 };

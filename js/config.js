@@ -16,12 +16,12 @@ const CONFIG = {
     text: "",
     btn: "ZDROWIE",
     photos: [
-      "assets/photos/PIJE/01.jpg",
-      "assets/photos/PIJE/02.jpg",
-      "assets/photos/PIJE/03.jpg",
-      "assets/photos/PIJE/04.jpg",
-      "assets/photos/PIJE/05.jpg",
-      "assets/photos/PIJE/06.jpg",
+      "assets/photos/PIJE/01.webp",
+      "assets/photos/PIJE/02.webp",
+      "assets/photos/PIJE/03.webp",
+      "assets/photos/PIJE/04.webp",
+      "assets/photos/PIJE/05.webp",
+      "assets/photos/PIJE/06.webp",
     ],
   },
 
@@ -35,15 +35,13 @@ const CONFIG = {
     passBtn: "No dobra…",
   },
 
-  // ---- FINAŁ ----
+  // ---- FINAŁ (nagroda za ukończenie całej gry) ----
   final: {
-    title: "GRATULACJE!",
-    message:
-      "Przeszedłeś całą podróż dookoła świata i wróciłeś do Polski! 🇵🇱\n" +
-      "To nie koniec niespodzianki — czeka na Ciebie prezent:",
-    gift: "🎸 Masz wykupione 2 lekcje gry na gitarze!",
-    phoneLabel: "Zadzwoń i umów termin:",
-    phone: "+48 000 000 000", // <-- WSTAW PRAWDZIWY NUMER
+    title: "ODBIERZ NAGRODĘ 🎁",
+    message: "Za wszystkie dobrze zrobione zadania należy Ci się nagroda:",
+    gift: "🎸 Jedna lekcja gry na gitarze",
+    phoneLabel: "Zadzwoń i umów się:",
+    phone: "516 515 825",
   },
 
   /* ---- ZDJĘCIA ----
@@ -51,12 +49,12 @@ const CONFIG = {
      Dopóki plik nie istnieje, pokaże się placeholder z opisem.
      Możesz użyć jednego zdjęcia do wszystkiego — wpisz tę samą nazwę.   */
   photos: {
-    gram:  "assets/photos/GRAM.jpeg",      // lewy kafelek na ekranie startowym (GRAM)
-    pass:  "assets/photos/PASS.jpeg",      // prawy kafelek na ekranie startowym (PASS)
-    win:   "assets/photos/wygrana.jpg",    // zdjęcie po wygranej
-    lose:  "assets/photos/przegrana.jpg",  // zdjęcie po przegranej
-    final: "assets/photos/final.jpg",      // zdjęcie w finale (okrągłe)
-    drink: "assets/photos/drink.jpg",      // popup „Czas na drina!" co minutę
+    gram:  "assets/photos/GRAM.webp",      // lewy kafelek na ekranie startowym (GRAM)
+    pass:  "assets/photos/PASS.webp",      // prawy kafelek na ekranie startowym (PASS)
+    win:   "assets/photos/wygrana.webp",    // zdjęcie po wygranej
+    lose:  "assets/photos/przegrana.webp",  // zdjęcie po przegranej
+    final: "assets/photos/final.webp",      // zdjęcie w finale (okrągłe)
+    drink: "assets/photos/drink.webp",      // popup „Czas na drina!" co minutę
   },
 
   // Teksty gratulacji (losowane po każdej wygranej)
@@ -73,32 +71,57 @@ const CONFIG = {
   ],
 };
 
-/* ---- LOKACJE / TRASA ----
-   game: 'cups' | 'manchester' | 'alicante' | 'draw' | 'placeholder' | 'final'
-   lat/lon = prawdziwe współrzędne (pin ląduje w realnym miejscu na mapie świata).
-   Wietnam i Malezja to sloty na Twoje kolejne gry.                      */
-const LOCATIONS = [
+/* =====================================================================
+   MAPY I LOKACJE
+   game: 'cups'|'manchester'|'alicante'|'photoquiz'|'videoquiz'
+         |'placeholder'|'submap'|'final'
+   lat/lon = prawdziwe współrzędne (pin ląduje w realnym miejscu).
+   'submap' = kliknięcie przenosi na inną mapę (pole submap: 'poland').
+   ===================================================================== */
+
+// --- MAPA ŚWIATA ---
+const WORLD_LOCATIONS = [
   { id: "meksyk",    name: "Meksyk",    emoji: "🇲🇽", lat: 19.4,  lon: -99.1, game: "cups",
     title: "Pod którym kapeluszem ukrył się ulubiony napój Strenci9?", desc: "Obserwuj uważnie 👀",
-    bg: ["assets/photos/MEKSYK/01.jpeg", "assets/photos/MEKSYK/02.jpeg", "assets/photos/MEKSYK/03.jpeg", "assets/photos/MEKSYK/04.jpeg"],
-    win: { title: "DOBRZE!", text: "Ale coronki to bym się napił...", photo: "assets/photos/MEKSYK/meksyk-win.jpeg" } },
+    bg: ["assets/photos/MEKSYK/01.webp", "assets/photos/MEKSYK/02.webp", "assets/photos/MEKSYK/03.webp", "assets/photos/MEKSYK/04.webp"],
+    win: { title: "DOBRZE!", text: "Ale coronki to bym się napił...", photo: "assets/photos/MEKSYK/meksyk-win.webp" } },
   { id: "anglia",    name: "Anglia",    emoji: "🏴", lat: 53.5,  lon: -2.2,  game: "manchester",
     title: "JAKI JEST MANCHESTER?", desc: "",
-    bg: ["assets/photos/ANGLIA/01.jpg", "assets/photos/ANGLIA/02.jpg", "assets/photos/ANGLIA/03.jpg", "assets/photos/ANGLIA/04.jpg"],
-    win: { title: "DOBRZE!", text: "Może nie w tabeli, ale w sercu zawsze na pierwszym.", photo: "assets/photos/ANGLIA-WIN.jpeg" } },
+    bg: ["assets/photos/ANGLIA/01.webp", "assets/photos/ANGLIA/02.webp", "assets/photos/ANGLIA/03.webp", "assets/photos/ANGLIA/04.webp"],
+    win: { title: "DOBRZE!", text: "Może nie w tabeli, ale w sercu zawsze na pierwszym.", photo: "assets/photos/ANGLIA-WIN.webp" } },
   { id: "hiszpania", name: "Hiszpania", emoji: "🇪🇸", lat: 38.35, lon: -0.48, game: "alicante",
     title: "Flaga Alicante", desc: "",
-    bg: ["assets/photos/HISZPANIA/01.jpg", "assets/photos/HISZPANIA/02.jpg", "assets/photos/HISZPANIA/03.jpg", "assets/photos/HISZPANIA/04.jpg"],
-    win: { title: "KMWTW", text: "", photo: "assets/photos/HISZPANIA-WIN.jpg" } },
+    bg: ["assets/photos/HISZPANIA/01.webp", "assets/photos/HISZPANIA/02.webp", "assets/photos/HISZPANIA/03.webp", "assets/photos/HISZPANIA/04.webp"],
+    win: { title: "KMWTW", text: "", photo: "assets/photos/HISZPANIA-WIN.webp" } },
   { id: "maroko",    name: "Maroko",    emoji: "🇲🇦", lat: 33.6,  lon: -7.6,  game: "photoquiz",
     title: "Który ptak ma w zwyczaju wyjebać się na znajomych?", desc: "",
-    bg: ["assets/photos/MAROKO/01.jpg", "assets/photos/MAROKO/02.jpg", "assets/photos/MAROKO/03.jpg", "assets/photos/MAROKO/04.jpg"],
+    bg: ["assets/photos/MAROKO/01.webp", "assets/photos/MAROKO/02.webp", "assets/photos/MAROKO/03.webp", "assets/photos/MAROKO/04.webp"],
     options: [
-      { img: "assets/photos/KACZKA.png", label: "KACZKA", correct: false },
-      { img: "assets/photos/BOCIAN.png", label: "BOCIAN", correct: false },
-      { img: "assets/photos/SOKOL.png",  label: "SOKÓŁ",  correct: true  },
+      { img: "assets/photos/KACZKA.webp", label: "KACZKA", correct: false },
+      { img: "assets/photos/BOCIAN.webp", label: "BOCIAN", correct: false },
+      { img: "assets/photos/SOKOL.webp",  label: "SOKÓŁ",  correct: true  },
     ],
-    win: { title: "HARK STFU", text: "", photo: "assets/photos/MAROKO/maroko-win.PNG" } },
+    win: { title: "HARK STFU", text: "", photo: "assets/photos/MAROKO/maroko-win.webp" } },
+  { id: "jordania",  name: "Jordania",  emoji: "🇯🇴", lat: 31.95, lon: 35.93, game: "choice",
+    title: "PODRYW NA SPANIE W NAMIOCIE: KLASA CZY OBCIACH?", desc: "",
+    bgImage: "assets/photos/JORDANIA/Jordania-glowne.webp",
+    options: [
+      { label: "KLASA",   correct: true  },
+      { label: "OBCIACH", correct: false },
+    ],
+    gameover: "assets/photos/JORDANIA/JORDANIA-GAMEOVER.webp",
+    win: { title: "KLASA!", text: "", photo: "assets/photos/JORDANIA/Jordania-win.webp" } },
+  { id: "indonezja", name: "Indonezja", emoji: "🇮🇩", lat: -6.2,  lon: 106.8, game: "videoquiz",
+    title: "ILE PROMILI NA TYM NAGRANIU MA STRENCI?", desc: "Kliknij ▶, obejrzyj i zaznacz odpowiedź",
+    video: "assets/video/nagranie-indonezja.mp4",
+    bg: ["assets/photos/INDONEZJA/01.webp", "assets/photos/INDONEZJA/02.webp", "assets/photos/INDONEZJA/03.webp", "assets/photos/INDONEZJA/04.webp"],
+    gameover: "assets/photos/INDONEZJA/game-over.webp", // zamiast standardowego nagrania Game Over
+    options: [
+      { label: "1,5 PROMILA", correct: false },
+      { label: "2 PROMILE",   correct: false },
+      { label: "WSZYSTKIE",   correct: true  },
+    ],
+    win: { title: "LECIMY DALEJ", text: "tak jak Strenci leciał z melanżem w Azji 🍻", photo: "assets/photos/INDONEZJA/win.webp" } },
   { id: "wietnam",   name: "Wietnam",   emoji: "🇻🇳", lat: 16.0,  lon: 108.0, game: "videoquiz",
     title: "ZADANIE DLA WSZYSTKICH", desc: "",
     video: "assets/video/nagranie-wietnam.mp4",
@@ -107,38 +130,76 @@ const LOCATIONS = [
       { label: "W POKOJU SĄ MIĘCZAKI", correct: false },
       { label: "LEJ NASTĘPNY",         correct: true  },
     ],
-    win: { title: "LEJ NASTĘPNY!", text: "", photo: "assets/photos/WIN-Wietnam.jpeg" } },
-  { id: "indonezja", name: "Indonezja", emoji: "🇮🇩", lat: -6.2,  lon: 106.8, game: "videoquiz",
-    title: "ILE PROMILI NA TYM NAGRANIU MA STRENCI?", desc: "Kliknij ▶, obejrzyj i zaznacz odpowiedź",
-    video: "assets/video/nagranie-indonezja.mp4",
-    bg: ["assets/photos/INDONEZJA/01.jpg", "assets/photos/INDONEZJA/02.jpg", "assets/photos/INDONEZJA/03.jpg", "assets/photos/INDONEZJA/04.jpg"],
-    gameover: "assets/photos/INDONEZJA/game-over.jpg", // zamiast standardowego nagrania Game Over
-    options: [
-      { label: "1,5 PROMILA", correct: false },
-      { label: "2 PROMILE",   correct: false },
-      { label: "WSZYSTKIE",   correct: true  },
-    ],
-    win: { title: "LECIMY DALEJ", text: "tak jak Strenci leciał z melanżem w Azji 🍻", photo: "assets/photos/INDONEZJA/win.jpg" } },
-  { id: "polska",    name: "Polska",    emoji: "🇵🇱", lat: 52.2,  lon: 21.0,  game: "final",
-    title: "Dom!", desc: "Wróciłeś do Polski." },
+    win: { title: "LEJ NASTĘPNY!", text: "", photo: "assets/photos/WIN-Wietnam.webp" } },
+  { id: "polska",    name: "Polska",    emoji: "🇵🇱", lat: 52.2,  lon: 21.0,  game: "submap", submap: "poland",
+    title: "Dom!", desc: "Wróciłeś do Polski — czas na finał!" },
 ];
 
-/* Widoczny wycinek mapy świata (kadr) w stopniach geo.
-   Mapa pełna ma viewBox 0 0 1000 500 (equirectangular).               */
-const MAP_BOUNDS = { lonMin: -128, lonMax: 142, latMax: 62, latMin: -8 };
+// --- MAPA POLSKI (odblokowuje się po dotarciu do Polski; Warszawa = finał) ---
+const POLAND_LOCATIONS = [
+  { id: "zamosc",   name: "Zamość",   emoji: "🏰", lat: 50.72, lon: 23.25, game: "choice",
+    title: "NA JAKIE DNI STRENCI BYŁ NAJBARDZIEJ NAJEBANY?", desc: "",
+    bg: ["assets/photos/ZAMOSC/01.webp", "assets/photos/ZAMOSC/02.webp", "assets/photos/ZAMOSC/03.webp", "assets/photos/ZAMOSC/04.webp", "assets/photos/ZAMOSC/05.webp", "assets/photos/ZAMOSC/06.webp", "assets/photos/ZAMOSC/07.webp", "assets/photos/ZAMOSC/08.webp"],
+    options: [
+      { label: "DNI WALENIA KONIA", correct: false },
+      { label: "DNI PŁODNE",        correct: false },
+      { label: "DNI KRASNOBRODU",   correct: true  },
+    ],
+    gameover: "assets/photos/ZAMOSC/gameover.webp",
+    win: { title: "NIECH KAŻDY KOŃCZY DZISIAJ TAK SAMO!", text: "", photo: "assets/photos/ZAMOSC/win.webp" } },
+  { id: "krakow",   name: "Kraków",   emoji: "🐉", lat: 50.06, lon: 19.94, game: "choice",
+    title: "O KTÓREJ GODZINIE NA SZTYWNO BYŁO UMÓWIONE DO KLUBU SHEIN W KRAKOWIE?", desc: "",
+    bg: ["assets/photos/KRAKOW/01.webp", "assets/photos/KRAKOW/02.webp", "assets/photos/KRAKOW/03.webp", "assets/photos/KRAKOW/04.webp"],
+    options: [
+      { label: "22:00", correct: false },
+      { label: "22:30", correct: true  },
+      { label: "23:00", correct: false },
+      { label: "00:00", correct: false },
+    ],
+    gameover: "assets/photos/KRAKOW/GAME-OVER.webp",
+    win: { title: "BRAWO!", text: "Teraz każdy musi się napić, sztywniutko! 🍻", photo: "assets/photos/KRAKOW/WIN.webp" } },
+  { id: "warszawa", name: "Warszawa", emoji: "🧜", lat: 52.23, lon: 21.01, game: "photoquiz", final: true,
+    title: "KTÓRY Z TWOICH KOLEGÓW POKONAŁ CHO'GATHA NA WARSZAWSKIEJ DOMÓWCE?", desc: "",
+    bg: ["assets/photos/WARSZAWA/01.webp", "assets/photos/WARSZAWA/02.webp", "assets/photos/WARSZAWA/03.webp", "assets/photos/WARSZAWA/04.webp"],
+    options: [
+      { img: "assets/photos/WARSZAWA/odpowiedzi/Godzisz.webp", label: "BG",     correct: true  },
+      { img: "assets/photos/WARSZAWA/odpowiedzi/Many.webp",    label: "MANY",   correct: false },
+      { img: "assets/photos/WARSZAWA/odpowiedzi/Planet.webp",  label: "PLANET", correct: false },
+      { img: "assets/photos/WARSZAWA/odpowiedzi/Marcin.webp",  label: "MARCIN", correct: false },
+    ],
+    gameover: "assets/photos/WARSZAWA/Warszawa-gameover.webp",
+    win: { title: "GRATULACJE!", text: "Przeszedłeś całą grę! Teraz każdy musi wypić do dna za zdrowie Strenciego! 🍻", photo: "assets/photos/WARSZAWA/Warszawa-win.webp" } },
+];
 
-// lon/lat -> pozycja % w kadrze (do pinezek HTML)
-function geoToPct(lat, lon) {
+/* Mapy: każda ma własny kadr (bounds), kontur (path), klucz zapisu i listę lokacji.
+   path: WORLD_PATH (worldmap.js) / POLAND_PATH (poland.js) — ładowane PRZED config.js. */
+const MAPS = {
+  world: {
+    bounds: { lonMin: -128, lonMax: 142, latMax: 62, latMin: -8 },
+    path: WORLD_PATH,
+    storeKey: "podroz_progress_v1",
+    locations: WORLD_LOCATIONS,
+  },
+  poland: {
+    bounds: { lonMin: 13.5, lonMax: 25, latMax: 55.2, latMin: 48.8 },
+    path: POLAND_PATH,
+    storeKey: "podroz_poland_v1",
+    locations: POLAND_LOCATIONS,
+  },
+};
+
+// lon/lat -> pozycja % w kadrze danej mapy (do pinezek HTML)
+function geoToPct(lat, lon, b) {
   return {
-    left: ((lon - MAP_BOUNDS.lonMin) / (MAP_BOUNDS.lonMax - MAP_BOUNDS.lonMin)) * 100,
-    top: ((MAP_BOUNDS.latMax - lat) / (MAP_BOUNDS.latMax - MAP_BOUNDS.latMin)) * 100,
+    left: ((lon - b.lonMin) / (b.lonMax - b.lonMin)) * 100,
+    top: ((b.latMax - lat) / (b.latMax - b.latMin)) * 100,
   };
 }
-// kadr przeliczony na układ viewBox 0 0 1000 500
-function mapViewBox() {
-  const x = ((MAP_BOUNDS.lonMin + 180) / 360) * 1000;
-  const y = ((90 - MAP_BOUNDS.latMax) / 180) * 500;
-  const w = ((MAP_BOUNDS.lonMax - MAP_BOUNDS.lonMin) / 360) * 1000;
-  const h = ((MAP_BOUNDS.latMax - MAP_BOUNDS.latMin) / 180) * 500;
+// kadr -> viewBox 0 0 1000 500
+function mapViewBox(b) {
+  const x = ((b.lonMin + 180) / 360) * 1000;
+  const y = ((90 - b.latMax) / 180) * 500;
+  const w = ((b.lonMax - b.lonMin) / 360) * 1000;
+  const h = ((b.latMax - b.latMin) / 180) * 500;
   return `${x} ${y} ${w} ${h}`;
 }

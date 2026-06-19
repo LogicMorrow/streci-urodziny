@@ -2,14 +2,20 @@
    APLIKACJA — stan, mapa, nawigacja, modale, finał
    ===================================================================== */
 
-const STORE_KEY = "podroz_progress_v1";
+const MAP_ID_KEY = "podroz_map_v1";
+let currentMapId = localStorage.getItem(MAP_ID_KEY) || "world";
+function setMap(id) {
+  currentMapId = id;
+  localStorage.setItem(MAP_ID_KEY, id);
+}
 
+// postęp jest osobny dla każdej mapy (świat / Polska)
 const app = {
   get progress() {
-    return parseInt(localStorage.getItem(STORE_KEY) || "0", 10);
+    return parseInt(localStorage.getItem(MAPS[currentMapId].storeKey) || "0", 10);
   },
   set progress(v) {
-    localStorage.setItem(STORE_KEY, String(v));
+    localStorage.setItem(MAPS[currentMapId].storeKey, String(v));
   },
 };
 
@@ -61,19 +67,25 @@ function showGate() {
 const SVGNS = "http://www.w3.org/2000/svg";
 
 function renderMap() {
+  const map = MAPS[currentMapId];
+  const locs = map.locations;
+  const bounds = map.bounds;
   const nodesWrap = document.getElementById("worldmap-nodes");
   const land = document.getElementById("worldmap-land");
   const paths = document.getElementById("worldmap-paths");
+  const inner = document.getElementById("worldmap-inner");
 
-  // ląd (kadr mapy świata) — rysujemy raz
-  land.setAttribute("viewBox", mapViewBox());
-  document.getElementById("land-path").setAttribute("d", WORLD_PATH);
+  // kadr lądu aktualnej mapy + proporcje kontenera (świat vs Polska)
+  land.setAttribute("viewBox", mapViewBox(bounds));
+  document.getElementById("land-path").setAttribute("d", map.path);
+  inner.style.aspectRatio =
+    bounds.lonMax - bounds.lonMin + " / " + (bounds.latMax - bounds.latMin);
 
   nodesWrap.innerHTML = "";
   const progress = app.progress;
-  const pts = LOCATIONS.map((l) => geoToPct(l.lat, l.lon));
+  const pts = locs.map((l) => geoToPct(l.lat, l.lon, bounds));
 
-  LOCATIONS.forEach((loc, i) => {
+  locs.forEach((loc, i) => {
     const p = pts[i];
     const node = document.createElement("div");
     node.className = "node";
@@ -86,7 +98,8 @@ function renderMap() {
       stateTxt = "✓ ukończono";
     } else if (i === progress) {
       state = "current";
-      stateTxt = loc.game === "final" ? "▶ finał!" : "▶ zagraj";
+      stateTxt =
+        loc.game === "final" ? "▶ finał!" : loc.game === "submap" ? "▶ dalej!" : "▶ zagraj";
       node.dataset.current = "1";
     } else {
       state = "locked";
@@ -104,6 +117,10 @@ function renderMap() {
   });
 
   drawPaths(paths, pts, progress);
+
+  // przycisk powrotu do mapy świata — tylko na mapie Polski
+  document.getElementById("world-back-btn").style.display =
+    currentMapId === "poland" ? "block" : "none";
 }
 
 function drawPaths(svg, pts, progress) {
@@ -128,11 +145,19 @@ function drawPaths(svg, pts, progress) {
 
 /* ---------- OTWIERANIE LOKACJI ---------- */
 function openLocation(i) {
-  const loc = LOCATIONS[i];
+  const map = MAPS[currentMapId];
+  const loc = map.locations[i];
   activeIndex = i;
 
+  if (loc.game === "submap") {
+    // przejście na inną mapę (np. Polska)
+    setMap(loc.submap);
+    renderMap();
+    showScreen("map");
+    return;
+  }
   if (loc.game === "final") {
-    app.progress = Math.max(app.progress, LOCATIONS.length);
+    app.progress = Math.max(app.progress, map.locations.length);
     showFinal();
     return;
   }
@@ -146,30 +171,51 @@ function openLocation(i) {
   // karuzela zdjęć w tle gry (jeśli lokacja ma listę bg)
   // dodawana do #game-screen (pełna szerokość), pod treść gry — bezpieczne dla iOS Safari
   const gameScreen = document.getElementById("game-screen");
-  const oldBg = gameScreen.querySelector(".bg-carousel");
-  if (oldBg) oldBg.remove();
+  gameScreen.querySelectorAll(".bg-carousel, .bg-static").forEach((e) => e.remove());
   if (loc.bg && loc.bg.length) {
     const imgs = loc.bg.map((src) => `<img src="${src}" alt="" />`).join("");
     const carousel = document.createElement("div");
     carousel.className = "bg-carousel";
     carousel.setAttribute("aria-hidden", "true");
-    carousel.innerHTML = `<div class="bg-track">${imgs}${imgs}</div>`;
+    carousel.innerHTML = `<div class="bg-track">${imgs}${imgs}${imgs}</div>`;
     gameScreen.appendChild(carousel);
+  } else if (loc.bgImage) {
+    // statyczne zdjęcie jako tło gry (np. Jordania)
+    const bg = document.createElement("div");
+    bg.className = "bg-static";
+    bg.setAttribute("aria-hidden", "true");
+    bg.style.backgroundImage = `url("${loc.bgImage}")`;
+    gameScreen.appendChild(bg);
   }
 }
 
 function handleWin(i) {
+  const map = MAPS[currentMapId];
   if (i + 1 > app.progress) app.progress = i + 1;
   fireConfetti();
-  const loc = LOCATIONS[i];
-  const isLastGame = i + 1 >= LOCATIONS.length - 1; // ostatnia gra przed finałem
+
+  // dźwięk wygranej (z win-wideo) + ścisz muzykę
+  const winAudio = document.getElementById("win-audio");
+  duckMusic();
+  try {
+    winAudio.currentTime = 0;
+    winAudio.muted = false;
+    winAudio.volume = 1.0;
+    const wp = winAudio.play();
+    if (wp && wp.catch) wp.catch(() => {});
+  } catch (e) {}
+  winAudio.onended = () => unduckMusic();
+
+  const loc = map.locations[i];
+  const isLastGame = i + 1 >= map.locations.length - 1; // ostatnia gra przed finałem/submapą
+  const finalName = map.locations[map.locations.length - 1].name;
   const w = loc.win || {};
   const title = w.title || rand(CONFIG.winLines);
   const text =
     w.text != null
       ? w.text
       : isLastGame
-      ? "To była ostatnia próba! Wróć na mapę i kliknij Polskę 🇵🇱"
+      ? "To była ostatnia próba! Wróć na mapę i kliknij " + finalName
       : "Lokacja odblokowana — ruszaj dalej!";
   showModal({
     type: "win",
@@ -177,10 +223,16 @@ function handleWin(i) {
     text,
     photo: w.photo || CONFIG.photos.win,
     phText: "Tu pojawi się zdjęcie kolegi (wygrana)",
-    btn: "Dalej ➜",
+    btn: loc.final ? "ODBIERZ PREZENT 🎁" : "Dalej ➜",
     onClose: () => {
-      renderMap();
-      showScreen("map");
+      try { winAudio.pause(); } catch (e) {}
+      unduckMusic();
+      if (loc.final) {
+        showFinal();
+      } else {
+        renderMap();
+        showScreen("map");
+      }
     },
   });
 }
@@ -194,18 +246,28 @@ function showGameOver(i) {
   const ov = document.getElementById("gameover");
   const vid = document.getElementById("gameover-video");
   const img = document.getElementById("gameover-image");
+  const aud = document.getElementById("gameover-audio");
   const txt = document.getElementById("gameover-text");
-  const loc = LOCATIONS[i];
+  const loc = MAPS[currentMapId].locations[i];
 
   ov.classList.add("show");
+  duckMusic(); // ścisz muzykę na czas Game Over
 
   if (loc && loc.gameover) {
-    // własny ekran Game Over (zdjęcie) zamiast standardowego nagrania
+    // własne zdjęcie Game Over + dźwięk z nagrania GAME OVER (osobny element audio)
     img.src = loc.gameover;
     img.style.display = "block";
     vid.style.display = "none";
     try { vid.pause(); } catch (e) {}
+    try {
+      aud.currentTime = 0;
+      aud.muted = false;
+      aud.volume = 1.0;
+      const p = aud.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
   } else {
+    try { aud.pause(); } catch (e) {}
     img.style.display = "none";
     vid.style.display = "block";
     try {
@@ -225,6 +287,8 @@ function showGameOver(i) {
   document.getElementById("gameover-btn").onclick = () => {
     ov.classList.remove("show");
     try { vid.pause(); } catch (e) {}
+    try { aud.pause(); } catch (e) {}
+    unduckMusic(); // przywróć głośność muzyki
     openLocation(i); // restart tej samej gry
   };
 }
@@ -248,19 +312,17 @@ function showModal({ type, title, text, photo, phText, btn, onClose }) {
 function showFinal() {
   fireConfetti(true);
   const f = CONFIG.final;
+  const tel = f.phone.replace(/\s/g, "");
   screens.final.innerHTML = `
     <div class="final-inner">
       <div class="final-trophy">🏆</div>
-      <div class="final-photo">${photoHTML(
-        CONFIG.photos.final,
-        "Zdjęcie kolegi"
-      )}</div>
       <h1 class="final-title">${f.title}</h1>
       <p class="final-msg">${f.message.replace(/\n/g, "<br>")}</p>
       <div class="final-card">
         <div class="final-gift">${f.gift}</div>
         <div class="label" style="margin-top:14px">${f.phoneLabel}</div>
-        <a class="final-phone" href="tel:${f.phone.replace(/\s/g, "")}">${f.phone}</a>
+        <a class="final-phone" href="tel:${tel}">${f.phone}</a>
+        <a class="btn btn-gold final-claim" href="tel:${tel}">📞 ODBIERZ NAGRODĘ</a>
       </div>
       <button class="btn btn-ghost" id="final-map">← Wróć na mapę</button>
     </div>`;
@@ -321,6 +383,25 @@ function rand(arr) {
   return arr[(Math.random() * arr.length) | 0];
 }
 
+/* ---------- MUZYKA W TLE ---------- */
+// plik MP3 ma już wypalone 25% głośności (dla iPhone, gdzie JS nie steruje volume).
+// volume=1.0 => słyszalne 25%; duck 0.2 => słyszalne ~5% (działa na desktop/Mac).
+const BG_MUSIC_VOL = 1.0,
+  BG_MUSIC_DUCK = 0.2;
+const bgMusic = document.getElementById("bg-music");
+bgMusic.volume = BG_MUSIC_VOL;
+function startMusic() {
+  bgMusic.volume = BG_MUSIC_VOL;
+  const p = bgMusic.play();
+  if (p && p.catch) p.catch(() => {});
+}
+function duckMusic() {
+  bgMusic.volume = BG_MUSIC_DUCK;
+}
+function unduckMusic() {
+  bgMusic.volume = BG_MUSIC_VOL;
+}
+
 /* ---------- LICZNIK CZASU + POPUP „CZAS NA DRINA!" ---------- */
 let timerInt = null,
   timerStart = 0,
@@ -361,17 +442,27 @@ function overlayOpen() {
     document.getElementById("gameover").classList.contains("show")
   );
 }
-function showDrink() {
+// kolejka zdjęć PIJE: przetasowana, bez powtórek; gdy się skończy — tasujemy od nowa (zapętlenie)
+let drinkQueue = [];
+function nextDrinkPhoto() {
   const pool = CONFIG.drink.photos || [];
-  const photo = pool.length
-    ? pool[(Math.random() * pool.length) | 0] // losowe zdjęcie z folderu PIJE
-    : CONFIG.photos.drink;
+  if (!pool.length) return CONFIG.photos.drink;
+  if (!drinkQueue.length) {
+    drinkQueue = pool.slice();
+    for (let i = drinkQueue.length - 1; i > 0; i--) {
+      const j = (Math.random() * (i + 1)) | 0;
+      [drinkQueue[i], drinkQueue[j]] = [drinkQueue[j], drinkQueue[i]];
+    }
+  }
+  return drinkQueue.shift();
+}
+function showDrink() {
   showModal({
     type: "drink",
     title: CONFIG.drink.title,
     text: CONFIG.drink.text,
-    photo,
-    phText: "(zdjęcie z folderu PIJE)",
+    photo: nextDrinkPhoto(),
+    phText: "🍻",
     btn: CONFIG.drink.btn,
     onClose: null,
   });
@@ -380,8 +471,11 @@ function showDrink() {
 /* ---------- PRZYCISKI GLOBALNE ---------- */
 document.getElementById("reset-btn").addEventListener("click", () => {
   if (confirm("Zrestartować całą grę? Postęp zostanie skasowany.")) {
-    localStorage.removeItem(STORE_KEY);
+    Object.values(MAPS).forEach((m) => localStorage.removeItem(m.storeKey));
+    localStorage.removeItem(MAP_ID_KEY);
+    currentMapId = "world";
     resetTimer();
+    try { bgMusic.pause(); bgMusic.currentTime = 0; } catch (e) {}
     showGate();
   }
 });
@@ -391,11 +485,26 @@ document.getElementById("gate-gram").addEventListener("click", () => {
   // odblokuj audio nagrania w geście użytkownika (Safari/iOS) — gra bez dźwięku,
   // ale „rozgrzewa" element, by późniejsze play() z dźwiękiem było dozwolone
   const vid = document.getElementById("gameover-video");
+  const aud = document.getElementById("gameover-audio");
   try {
     vid.muted = false;
     vid.volume = 0; // bez słyszalnego dźwięku przy odblokowaniu
     vid.play().then(() => { vid.pause(); vid.currentTime = 0; }).catch(() => {});
   } catch (e) {}
+  try {
+    aud.muted = false;
+    aud.volume = 0;
+    aud.play().then(() => { aud.pause(); aud.currentTime = 0; }).catch(() => {});
+  } catch (e) {}
+  const winAud = document.getElementById("win-audio");
+  try {
+    winAud.muted = false;
+    winAud.volume = 0;
+    winAud.play().then(() => { winAud.pause(); winAud.currentTime = 0; }).catch(() => {});
+  } catch (e) {}
+  // wstępne wczytanie zdjęć PIJE (popup co minutę) — żeby zawsze były gotowe
+  (CONFIG.drink.photos || []).forEach((src) => { const im = new Image(); im.src = src; });
+  startMusic(); // muzyka w tle startuje w geście użytkownika
   startTimer(); // licznik startuje z początkiem gry
   renderMap();
   showScreen("map");
@@ -412,6 +521,12 @@ document.getElementById("gate-pass").addEventListener("click", () => {
   });
 });
 document.getElementById("back-btn").addEventListener("click", () => {
+  renderMap();
+  showScreen("map");
+});
+// powrót z mapy Polski na mapę świata
+document.getElementById("world-back-btn").addEventListener("click", () => {
+  setMap("world");
   renderMap();
   showScreen("map");
 });

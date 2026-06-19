@@ -36,6 +36,7 @@
 
   <!-- EKRAN: MAPA -->
   <main id="map-screen" class="screen">
+    <button id="world-back-btn" class="back-btn" style="display:none">← Mapa świata</button>
     <div class="worldmap-scroll" id="worldmap-scroll">
       <div class="worldmap-inner" id="worldmap-inner">
         <svg class="worldmap-land" id="worldmap-land" preserveAspectRatio="none" aria-hidden="true">
@@ -65,6 +66,9 @@
         <source src="assets/video/game-over.webm" type="video/webm" />
       </video>
       <img id="gameover-image" class="gameover-image" alt="" style="display:none" />
+      <audio id="gameover-audio" preload="auto">
+        <source src="assets/video/game-over-audio.m4a" type="audio/mp4" />
+      </audio>
       <div class="gameover-text" id="gameover-text">GAME OVER</div>
       <button id="gameover-btn" class="btn btn-primary">Spróbuj jeszcze raz</button>
     </div>
@@ -80,11 +84,22 @@
     </div>
   </div>
 
+  <!-- Dźwięk wygranej (audio z win-wideo) -->
+  <audio id="win-audio" preload="auto">
+    <source src="assets/video/win-audio.m4a" type="audio/mp4" />
+  </audio>
+
+  <!-- Muzyka w tle (zapętlona, cicho, ścisza się przy innych dźwiękach) -->
+  <audio id="bg-music" loop preload="auto">
+    <source src="assets/audio/bg-music.mp3" type="audio/mpeg" />
+  </audio>
+
   <!-- Konfetti / efekt -->
   <canvas id="fx" class="fx"></canvas>
 
-  <script src="js/config.js"></script>
   <script src="js/worldmap.js"></script>
+  <script src="js/poland.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/games.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -64,7 +64,7 @@ body{
 /* kilka dużych logo MU w tle */
 .gate-screen::before{
   content:""; position:absolute; inset:-20px; z-index:0; pointer-events:none;
-  background:url("../assets/photos/logo-manunited.png") repeat;
+  background:url("../assets/photos/logo-manunited.webp") repeat;
   background-size:44vw auto; opacity:.13;
 }
 .gate-screen > *{position:relative; z-index:1;}
@@ -182,9 +182,16 @@ body{
 .bg-carousel::after{ /* przyciemnienie dla czytelności gry */
   content:""; position:absolute; inset:0; background:rgba(10,6,4,.62);
 }
-.bg-track{display:flex; height:100%; width:max-content; animation:bgscroll 30s linear infinite;}
+/* statyczne zdjęcie jako tło gry (np. Jordania) */
+.bg-static{
+  position:absolute; inset:0; z-index:0; pointer-events:none;
+  background-size:cover; background-position:center top; background-repeat:no-repeat;
+}
+.bg-static::after{content:""; position:absolute; inset:0; background:rgba(10,6,4,.58);}
+.bg-track{display:flex; height:100%; width:max-content; animation:bgscroll 40s linear infinite;}
 .bg-track img{height:100%; width:auto; object-fit:cover; display:block;}
-@keyframes bgscroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+/* 3 kopie zestawu, przesuw o 1/3 = bezszwowa, nieskończona pętla */
+@keyframes bgscroll{from{transform:translateX(0);} to{transform:translateX(-33.3333%);}}
 .game-flag{font-size:48px; margin-bottom:4px;}
 .game-title{font-family:'Bebas Neue',sans-serif; font-size:clamp(31px,8.8vw,44px); letter-spacing:1px; margin:0 0 6px;}
 .game-desc{color:var(--muted); margin:0 0 24px; font-size:16px; line-height:1.5;}
@@ -225,7 +232,9 @@ body{
 }
 
 /* quiz ze zdjęciami: 3 zdjęcia obok siebie + podpisy */
-.photo-choices{display:flex; gap:8px; width:100%; max-width:520px; margin:16px auto 0;}
+.photo-choices{display:flex; flex-wrap:wrap; justify-content:center; gap:8px; width:100%; max-width:520px; margin:16px auto 0;}
+/* 4 odpowiedzi -> układ 2x2 */
+.photo-choices.count-4 .photo-choice{flex:0 0 calc(50% - 4px);}
 .photo-choice{
   flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; align-items:center;
   padding:8px; cursor:pointer; color:#fff; font-family:inherit;
@@ -359,6 +368,7 @@ body{
 }
 .final-card .label{color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;}
 .final-phone{font-family:'Bebas Neue',sans-serif; font-size:40px; color:#fff; letter-spacing:2px; margin:6px 0; display:block; text-decoration:none;}
+.final-claim{display:block; text-decoration:none; margin-top:14px;}
 .final-gift{font-size:16px; color:var(--gold); font-weight:600;}
 
 /* ========= GAME OVER ========= */

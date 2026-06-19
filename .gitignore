@@ -2,6 +2,9 @@
 .claude/
 .vscode/
 
+# Nieużywane pliki (kopie robocze, oryginały przed konwersją) — poza repo
+assets-draft/
+
 # Śmieci systemowe
 .DS_Store
 Thumbs.db
