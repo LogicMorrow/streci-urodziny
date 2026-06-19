@@ -1,0 +1,9 @@
+# Narzędzia / nie część strony
+.claude/
+.vscode/
+
+# Śmieci systemowe
+.DS_Store
+Thumbs.db
+desktop.ini
+*.tmp

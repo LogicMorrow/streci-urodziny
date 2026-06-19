@@ -1,0 +1,386 @@
+/* ========= ZMIENNE / RESET ========= */
+:root{
+  --red:#DA291C;
+  --red-dark:#9c1d13;
+  --gold:#FBE122;
+  --black:#0b0b0d;
+  --ink:#15151a;
+  --white:#ffffff;
+  --muted:#b9b9c2;
+  --good:#21c46b;
+  --bad:#ff4d4d;
+  --radius:20px;
+  --shadow:0 12px 40px rgba(0,0,0,.45);
+  --safe-top:env(safe-area-inset-top,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;}
+body{
+  font-family:'Poppins',system-ui,-apple-system,sans-serif;
+  color:var(--white);
+  background:
+    radial-gradient(120% 80% at 50% -10%, #3a0d0a 0%, #1a0606 45%, #0b0b0d 100%);
+  min-height:100dvh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ========= EKRANY ========= */
+.screen{display:none; position:relative; z-index:1; min-height:100dvh;
+  padding:calc(64px + var(--safe-top)) 18px calc(24px + var(--safe-bottom));}
+.screen.active{display:block;}
+
+/* ========= TOPBAR ========= */
+.topbar{
+  position:fixed; top:0; left:0; right:0; z-index:30;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:calc(10px + var(--safe-top)) 16px 10px;
+  background:linear-gradient(180deg, rgba(11,11,13,.92), rgba(11,11,13,0));
+  backdrop-filter:blur(6px);
+}
+.topbar-title{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+  font-family:'Bebas Neue',sans-serif; letter-spacing:1.5px; line-height:1;
+  font-size:clamp(15px,4.8vw,26px); color:var(--gold); text-align:center;
+  white-space:nowrap; max-width:calc(100% - 130px); pointer-events:none;
+}
+.reset-btn{
+  margin-left:auto;
+  background:rgba(255,255,255,.08); color:var(--muted); border:1px solid rgba(255,255,255,.15);
+  padding:7px 12px; border-radius:999px; font-size:13px; font-weight:600; cursor:pointer;
+}
+.reset-btn:active{transform:scale(.95);}
+.timer{
+  display:none; font-family:'Bebas Neue',sans-serif; letter-spacing:1px;
+  font-size:18px; color:#fff; background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15); padding:5px 11px; border-radius:999px;
+  min-width:62px; text-align:center;
+}
+
+/* ========= EKRAN STARTOWY (BRAMA) ========= */
+.gate-screen{display:none;}
+.gate-screen.active{display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; overflow:hidden;}
+/* kilka dużych logo MU w tle */
+.gate-screen::before{
+  content:""; position:absolute; inset:-20px; z-index:0; pointer-events:none;
+  background:url("../assets/photos/logo-manunited.png") repeat;
+  background-size:44vw auto; opacity:.13;
+}
+.gate-screen > *{position:relative; z-index:1;}
+.gate-question{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,12vw,60px); line-height:1;
+  margin:0 0 28px; letter-spacing:1px; color:var(--gold);
+  text-shadow:0 4px 18px rgba(0,0,0,.6);
+}
+.gate-cards{display:flex; gap:14px; width:100%; max-width:520px;}
+.gate-card{
+  flex:1; min-width:0; background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.14); border-radius:20px; padding:12px;
+  cursor:pointer; transition:transform .15s, border-color .2s, box-shadow .2s;
+  display:flex; flex-direction:column; gap:12px; color:#fff; font-family:inherit;
+}
+.gate-card:active{transform:scale(.96);}
+.gate-card.gram{border-color:rgba(33,196,107,.5);}
+.gate-card.gram:hover{box-shadow:0 10px 30px rgba(33,196,107,.25);}
+.gate-card.pass{border-color:rgba(255,77,77,.5);}
+.gate-card.pass:hover{box-shadow:0 10px 30px rgba(255,77,77,.25);}
+.gate-photo{
+  width:100%; aspect-ratio:3/4; border-radius:14px; overflow:hidden;
+  background:rgba(255,255,255,.06); display:grid; place-items:center;
+}
+.gate-photo img{width:100%; height:100%; object-fit:cover; display:block;}
+.gate-photo .ph{color:var(--muted); font-size:13px; padding:14px; line-height:1.4;}
+.gate-photo .ph .big{font-size:40px; display:block; margin-bottom:6px;}
+.gate-card-label{font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:2px;}
+.gate-card.gram .gate-card-label{color:var(--good);}
+.gate-card.pass .gate-card-label{color:var(--bad);}
+.gate-hint{color:var(--muted); font-size:14px; margin-top:22px;}
+
+/* ========= MAPA ========= */
+.map-intro{text-align:center; margin-bottom:8px;}
+.map-headline{font-family:'Bebas Neue',sans-serif; font-size:clamp(30px,9vw,46px); line-height:1; margin:0 0 6px; letter-spacing:1px;}
+.map-sub{color:var(--muted); margin:0; font-size:14px;}
+/* przewijana mapa świata */
+.worldmap-scroll{
+  width:100%; margin:16px 0 0; overflow-x:auto; overflow-y:hidden;
+  -webkit-overflow-scrolling:touch; scrollbar-width:thin; border-radius:16px;
+  background:linear-gradient(180deg,#0a1424,#0a0f1a);
+  border:1px solid rgba(255,255,255,.08); box-shadow:inset 0 0 60px rgba(0,0,0,.6);
+}
+.worldmap-scroll::-webkit-scrollbar{height:6px;}
+.worldmap-scroll::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2); border-radius:3px;}
+.worldmap-inner{
+  position:relative; width:max(1500px,100%); aspect-ratio:270/70;
+}
+.worldmap-land,.worldmap-paths{position:absolute; inset:0; width:100%; height:100%;}
+#land-path{fill:#27384f; stroke:rgba(120,150,190,.35); stroke-width:.4;}
+.worldmap-nodes{position:absolute; inset:0;}
+
+/* mapa zajmuje 100% szerokości ekranu, bez przewijania */
+#map-screen{padding:calc(54px + var(--safe-top)) 0 0; height:100dvh; overflow:hidden;}
+#map-screen .worldmap-scroll{
+  display:flex; align-items:center; justify-content:center;
+  height:100%; width:100%; margin:0; border:none; border-radius:0; overflow:hidden;
+}
+#map-screen .worldmap-inner{flex:none; width:100%; height:auto; aspect-ratio:270/70;}
+.map-footer{
+  position:absolute; left:50%; bottom:calc(12px + var(--safe-bottom)); transform:translateX(-50%);
+  margin:0; z-index:5; white-space:nowrap; font-size:12px; color:#fff;
+  background:rgba(8,10,16,.72); padding:7px 14px; border-radius:999px;
+  backdrop-filter:blur(4px); border:1px solid rgba(255,255,255,.1);
+}
+
+.node{
+  position:absolute; transform:translate(-50%,-50%);
+  width:72px; text-align:center; cursor:pointer; z-index:2;
+  display:flex; flex-direction:column; align-items:center; gap:3px;
+}
+.node-pin{
+  width:38px; height:38px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+  display:grid; place-items:center;
+  background:linear-gradient(145deg,#2a2a32,#15151a);
+  border:2.5px solid rgba(255,255,255,.18);
+  box-shadow:0 5px 13px rgba(0,0,0,.6);
+  transition:transform .2s, box-shadow .2s, border-color .2s;
+}
+.node-pin > *{transform:rotate(45deg); font-size:16px;}
+.node-label{font-weight:700; font-size:10px; background:rgba(8,10,16,.72); padding:1px 6px; border-radius:7px; white-space:nowrap;}
+.node-state{font-size:8px; color:var(--muted); background:rgba(8,10,16,.6); padding:0 5px; border-radius:5px;}
+
+.node.locked{opacity:.55; cursor:not-allowed;}
+.node.locked .node-pin{filter:grayscale(.6);}
+.node.current .node-pin{
+  border-color:var(--gold);
+  box-shadow:0 0 0 4px rgba(251,225,34,.25), 0 8px 26px rgba(0,0,0,.55);
+  animation:pulse 1.6s infinite;
+}
+.node.current .node-state{color:var(--gold); font-weight:700;}
+.node.done .node-pin{border-color:var(--good); background:linear-gradient(145deg,#16351f,#0f2417);}
+.node.done .node-state{color:var(--good);}
+.node:not(.locked):active .node-pin{transform:rotate(-45deg) scale(.9);}
+.node .lock{position:absolute; top:-6px; right:8px; font-size:20px;}
+
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(251,225,34,.25),0 8px 26px rgba(0,0,0,.55);}50%{box-shadow:0 0 0 10px rgba(251,225,34,.08),0 8px 26px rgba(0,0,0,.55);}}
+
+/* ========= GRA ========= */
+.back-btn{
+  position:fixed; top:calc(52px + var(--safe-top)); left:14px; z-index:31;
+  background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.18);
+  padding:7px 13px; border-radius:999px; font-weight:600; font-size:13px; cursor:pointer;
+  backdrop-filter:blur(4px);
+}
+.back-btn:active{transform:scale(.95);}
+.game-content{max-width:520px; margin:0 auto; text-align:center; position:relative; z-index:1;}
+
+/* karuzela zdjęć jako tło gry (gra meksykańska) — przesuwa się prawo→lewo */
+.mex-strip{
+  position:fixed; inset:0; width:100%; height:100%; overflow:hidden;
+  z-index:-1; pointer-events:none;
+}
+.mex-strip::after{ /* przyciemnienie dla czytelności gry */
+  content:""; position:absolute; inset:0; background:rgba(10,6,4,.62);
+}
+.mex-track{display:flex; height:100%; width:max-content; animation:mexscroll 30s linear infinite;}
+.mex-track img{height:100%; width:auto; object-fit:cover; display:block;}
+@keyframes mexscroll{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+.game-flag{font-size:48px; margin-bottom:4px;}
+.game-title{font-family:'Bebas Neue',sans-serif; font-size:clamp(31px,8.8vw,44px); letter-spacing:1px; margin:0 0 6px;}
+.game-desc{color:var(--muted); margin:0 0 24px; font-size:16px; line-height:1.5;}
+
+/* przyciski */
+.btn{
+  border:none; border-radius:14px; padding:16px 22px; font-size:17px; font-weight:700;
+  font-family:inherit; cursor:pointer; width:100%; transition:transform .12s, filter .2s;
+}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:linear-gradient(145deg,var(--red),var(--red-dark)); color:#fff; box-shadow:0 8px 22px rgba(218,41,28,.4);}
+.btn-gold{background:linear-gradient(145deg,var(--gold),#d9bf12); color:#1a1500; box-shadow:0 8px 22px rgba(251,225,34,.35);}
+.btn-ghost{background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.18);}
+.btn-row{display:flex; flex-direction:column; gap:14px; margin-top:8px;}
+
+/* opcje wyboru (gra 2/3) */
+.choice{
+  display:flex; align-items:center; gap:14px; text-align:left;
+  background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.12);
+  border-radius:16px; padding:14px 16px; cursor:pointer; transition:transform .12s, border-color .2s, background .2s;
+}
+.choice:active{transform:scale(.98);}
+.choice .flag-img{width:56px; height:38px; border-radius:6px; flex:none; box-shadow:0 4px 10px rgba(0,0,0,.4);}
+.ref-flag{width:132px; height:auto; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,.45); margin:4px auto; display:inline-block;}
+
+/* gra 3: trzy wielkie flagi obok siebie */
+.flag-choices{display:flex; gap:10px; width:100%; max-width:520px; margin:18px auto 0;}
+.flag-choice{
+  flex:1; min-width:0; padding:8px; cursor:pointer;
+  background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.16); border-radius:14px;
+  transition:transform .15s, border-color .2s, box-shadow .2s;
+}
+.flag-choice:active{transform:scale(.94);}
+.flag-choice:hover{border-color:rgba(255,255,255,.4); box-shadow:0 8px 22px rgba(0,0,0,.35);}
+.flag-choice img{
+  width:100%; height:auto; aspect-ratio:3/2; object-fit:cover; display:block;
+  border-radius:8px; box-shadow:0 4px 10px rgba(0,0,0,.45);
+}
+
+/* quiz ze zdjęciami: 3 zdjęcia obok siebie + podpisy */
+.photo-choices{display:flex; gap:8px; width:100%; max-width:520px; margin:16px auto 0;}
+.photo-choice{
+  flex:1; min-width:0; display:flex; flex-direction:column; gap:8px; align-items:center;
+  padding:8px; cursor:pointer; color:#fff; font-family:inherit;
+  background:rgba(255,255,255,.05); border:2px solid rgba(255,255,255,.16); border-radius:14px;
+  transition:transform .15s, border-color .2s, box-shadow .2s;
+}
+.photo-choice:active{transform:scale(.94);}
+.photo-choice:hover{border-color:rgba(255,255,255,.4); box-shadow:0 8px 22px rgba(0,0,0,.35);}
+.photo-choice img{
+  width:100%; height:auto; aspect-ratio:1/1; object-fit:contain; display:block;
+  background:rgba(255,255,255,.06); border-radius:10px;
+}
+.photo-choice-label{font-family:'Bebas Neue',sans-serif; font-size:20px; letter-spacing:1px; text-transform:uppercase;}
+
+/* quiz z nagraniem (Indonezja) */
+.quiz-video{
+  width:100%; max-width:460px; max-height:48vh; display:block; margin:6px auto 18px;
+  border-radius:16px; background:#000; box-shadow:0 10px 30px rgba(0,0,0,.55);
+}
+.quiz-opts{display:flex; flex-direction:column; gap:12px; width:100%; max-width:460px; margin:0 auto;}
+.quiz-opt{
+  font-family:'Bebas Neue',sans-serif; font-size:33px; letter-spacing:2px; color:#fff;
+  background:rgba(255,255,255,.06); border:2px solid rgba(255,255,255,.18); border-radius:16px;
+  padding:18px; cursor:pointer; width:100%; transition:transform .12s, border-color .2s, background .2s;
+}
+.quiz-opt:active{transform:scale(.97);}
+.quiz-opt:hover{border-color:var(--gold); background:rgba(255,255,255,.1);}
+.choice .choice-label{font-weight:700; font-size:17px;}
+.choice.blue{border-color:#1d6fd6;}
+.choice.red{border-color:var(--red);}
+
+/* ===== GRA 2: wielkie kafelki RED/BLUE ===== */
+.mc-prompt{height:0; overflow:visible; font-family:'Bebas Neue',sans-serif; opacity:0;}
+.mc-prompt.show{
+  height:auto; opacity:1; margin:2px 0 10px;
+  font-size:clamp(44px,14vw,80px); line-height:.9; letter-spacing:3px; color:var(--gold);
+  text-shadow:0 0 24px rgba(251,225,34,.55);
+  animation:explode .6s cubic-bezier(.2,1.5,.4,1) both;
+}
+.mc-cards{display:flex; gap:14px; width:100%; max-width:520px; margin:14px auto 0;}
+.mc-card{
+  flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:14px;
+  padding:22px 12px; border-radius:20px; background:rgba(255,255,255,.05);
+  border:2px solid rgba(255,255,255,.14); cursor:pointer; color:#fff; font-family:inherit;
+  transition:transform .15s, border-color .2s, box-shadow .2s;
+}
+.mc-card:active{transform:scale(.96);}
+.mc-card img{width:min(34vw,128px); height:min(34vw,128px); object-fit:contain;
+  filter:drop-shadow(0 6px 14px rgba(0,0,0,.5));}
+.mc-label{font-family:'Bebas Neue',sans-serif; font-size:31px; letter-spacing:2px;}
+.mc-card.red{border-color:rgba(218,41,28,.55);}
+.mc-card.red .mc-label{color:var(--red);}
+.mc-card.red:hover{box-shadow:0 10px 30px rgba(218,41,28,.25);}
+.mc-card.blue{border-color:rgba(108,171,221,.6);}
+.mc-card.blue .mc-label{color:#6CABDD;}
+.mc-card.blue:hover{box-shadow:0 10px 30px rgba(108,171,221,.25);}
+
+/* ========= GRA 1: KUBKI/KAPELUSZE ========= */
+.cups-stage{position:relative; width:100%; height:250px; margin:10px 0 26px;}
+.hat{
+  position:absolute; bottom:0; width:33%; left:0;
+  cursor:pointer; transition:left .45s cubic-bezier(.4,.1,.2,1), transform .3s;
+  display:flex; justify-content:center;
+}
+.hat-img{width:100%; height:auto; position:relative; z-index:2; transition:transform .35s; filter:drop-shadow(0 8px 10px rgba(0,0,0,.5));}
+.hat.lift .hat-img{transform:translateY(-112px);}
+.hat .beer{
+  position:absolute; bottom:6px; left:50%; transform:translateX(-50%);
+  height:112px; width:auto; z-index:1; opacity:0; transition:opacity .25s;
+  filter:drop-shadow(0 6px 9px rgba(0,0,0,.55));
+}
+.hat.reveal .beer{opacity:1;}
+.cups-status{min-height:24px; color:var(--gold); font-weight:700; margin-bottom:14px;}
+
+/* ========= GRA 4: RYSOWANIE DROGI ========= */
+.draw-wrap{position:relative; width:100%; max-width:460px; margin:0 auto 20px;}
+#draw-canvas{width:100%; height:300px; background:rgba(255,255,255,.04);
+  border:2px dashed rgba(255,255,255,.2); border-radius:18px; touch-action:none; display:block;}
+.draw-hint{color:var(--muted); font-size:13px; margin-top:10px;}
+
+/* ========= MODAL ========= */
+.modal{
+  position:fixed; inset:0; z-index:50; display:none;
+  align-items:flex-start; justify-content:center; overflow-y:auto;
+  padding:calc(56px + var(--safe-top)) 14px 24px;
+  background:rgba(4,4,6,.82); backdrop-filter:blur(4px);
+}
+.modal.show{display:flex; animation:fadeIn .25s;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-card{
+  width:100%; max-width:480px; background:linear-gradient(160deg,#1d1d24,#121217);
+  border:1px solid rgba(255,255,255,.1); border-radius:24px; padding:24px;
+  text-align:center; box-shadow:var(--shadow); animation:pop .3s cubic-bezier(.2,1.2,.4,1);
+}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+.modal.win .modal-card{border-color:var(--good);}
+.modal.lose .modal-card{border-color:var(--bad);}
+.modal.drink .modal-card{border-color:var(--gold);}
+.modal-photo{
+  width:100%; aspect-ratio:4/5; border-radius:18px; overflow:hidden; margin-bottom:16px;
+  background:rgba(255,255,255,.05); display:grid; place-items:center;
+}
+.modal-photo img{width:100%; height:100%; object-fit:cover; object-position:50% 12%; display:block;}
+.modal-photo .ph{color:var(--muted); font-size:14px; padding:20px; line-height:1.5;}
+.modal-photo .ph .big{font-size:46px; display:block; margin-bottom:8px;}
+.modal-title{font-family:'Bebas Neue',sans-serif; font-size:34px; letter-spacing:1px; margin:0 0 6px;}
+.modal.win .modal-title{color:var(--good); font-size:clamp(40px,12vw,58px); line-height:.95;}
+.modal.lose .modal-title{color:var(--bad);}
+.modal.drink .modal-title{color:var(--gold);}
+.modal-text{color:var(--muted); margin:0 0 18px; font-size:15px; line-height:1.5;}
+
+/* ========= FINAŁ ========= */
+.final-screen{display:none; text-align:center;}
+.final-screen.active{display:flex; flex-direction:column; align-items:center; justify-content:center;}
+.final-inner{max-width:460px; margin:0 auto; animation:pop .5s;}
+.final-trophy{font-size:80px; animation:float 2.4s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.final-title{font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,11vw,58px); margin:8px 0; letter-spacing:1px; color:var(--gold);}
+.final-msg{font-size:18px; line-height:1.55; margin:0 0 22px;}
+.final-photo{width:170px; height:170px; border-radius:50%; margin:0 auto 18px; overflow:hidden;
+  border:4px solid var(--gold); box-shadow:0 0 40px rgba(251,225,34,.4); background:rgba(255,255,255,.05); display:grid; place-items:center;}
+.final-photo img{width:100%;height:100%;object-fit:cover;}
+.final-card{
+  background:linear-gradient(160deg,#1d1d24,#121217); border:1px solid rgba(251,225,34,.4);
+  border-radius:22px; padding:22px; margin-bottom:18px; box-shadow:var(--shadow);
+}
+.final-card .label{color:var(--muted); font-size:13px; text-transform:uppercase; letter-spacing:1px;}
+.final-phone{font-family:'Bebas Neue',sans-serif; font-size:40px; color:#fff; letter-spacing:2px; margin:6px 0; display:block; text-decoration:none;}
+.final-gift{font-size:16px; color:var(--gold); font-weight:600;}
+
+/* ========= GAME OVER ========= */
+.gameover{
+  position:fixed; inset:0; z-index:70; display:none; overflow-y:auto;
+  flex-direction:column; align-items:center; justify-content:center;
+  padding:24px calc(20px + var(--safe-bottom)); background:rgba(2,2,4,.95);
+}
+.gameover.show{display:flex; animation:fadeIn .2s;}
+.gameover-inner{display:flex; flex-direction:column; align-items:center; gap:20px; width:100%; max-width:420px;}
+.gameover-video{
+  width:auto; max-width:90%; max-height:58vh; border-radius:18px; background:#000;
+  box-shadow:0 14px 44px rgba(0,0,0,.7); object-fit:contain;
+}
+.gameover-text{
+  font-family:'Bebas Neue',sans-serif; font-size:clamp(56px,19vw,104px); line-height:.9;
+  letter-spacing:3px; color:#fff;
+  text-shadow:0 0 18px var(--red), 0 0 44px var(--red);
+}
+.gameover-text.boom{animation:explode .75s cubic-bezier(.2,1.5,.4,1) both;}
+@keyframes explode{
+  0%{transform:scale(2.7) rotate(-9deg); opacity:0; filter:blur(7px);}
+  45%{transform:scale(1.18) rotate(4deg); opacity:1; filter:blur(0); text-shadow:0 0 34px #fff,0 0 70px var(--red);}
+  65%{transform:scale(.93) rotate(-3deg);}
+  80%{transform:scale(1.05) rotate(1deg);}
+  100%{transform:scale(1) rotate(0); text-shadow:0 0 18px var(--red),0 0 44px var(--red);}
+}
+.gameover .btn{max-width:340px;}
+
+/* ========= FX (konfetti) ========= */
+.fx{position:fixed; inset:0; z-index:60; pointer-events:none;}
