@@ -142,6 +142,16 @@ function openLocation(i) {
     onWin: () => handleWin(i),
     onLose: () => handleLose(i),
   });
+
+  // karuzela zdjęć w tle gry (jeśli lokacja ma listę bg)
+  if (loc.bg && loc.bg.length) {
+    const imgs = loc.bg.map((src) => `<img src="${src}" alt="" />`).join("");
+    const carousel = document.createElement("div");
+    carousel.className = "bg-carousel";
+    carousel.setAttribute("aria-hidden", "true");
+    carousel.innerHTML = `<div class="bg-track">${imgs}${imgs}</div>`;
+    gameContent.appendChild(carousel);
+  }
 }
 
 function handleWin(i) {
@@ -179,16 +189,29 @@ function handleLose(i) {
 function showGameOver(i) {
   const ov = document.getElementById("gameover");
   const vid = document.getElementById("gameover-video");
+  const img = document.getElementById("gameover-image");
   const txt = document.getElementById("gameover-text");
+  const loc = LOCATIONS[i];
 
   ov.classList.add("show");
-  try {
-    vid.currentTime = 0;
-    vid.muted = false;
-    vid.volume = 1.0; // maksymalna głośność
-    const p = vid.play();
-    if (p && p.catch) p.catch(() => {});
-  } catch (e) {}
+
+  if (loc && loc.gameover) {
+    // własny ekran Game Over (zdjęcie) zamiast standardowego nagrania
+    img.src = loc.gameover;
+    img.style.display = "block";
+    vid.style.display = "none";
+    try { vid.pause(); } catch (e) {}
+  } else {
+    img.style.display = "none";
+    vid.style.display = "block";
+    try {
+      vid.currentTime = 0;
+      vid.muted = false;
+      vid.volume = 1.0; // maksymalna głośność
+      const p = vid.play();
+      if (p && p.catch) p.catch(() => {});
+    } catch (e) {}
+  }
 
   // ponów animację „wybuchu"
   txt.classList.remove("boom");

@@ -5,14 +5,14 @@
 
 const CONFIG = {
   // Nazwa gry (nagłówek + tytuł karty przeglądarki)
-  gameName: "STRĘCI PIERWSZY WE WSZYSTKO",
+  gameName: "STRENCI PIERWSZY WE WSZYSTKO",
 
   // Imię solenizanta (wstawiane w tekstach)
   friendName: "Kolego",
 
   // ---- POPUP CO MINUTĘ ----
   drink: {
-    title: "PRZYSZEDŁ CZAS ZROBIĆ TO CO STRĘCI ZE ZDJĘCIA",
+    title: "PRZYSZEDŁ CZAS ZROBIĆ TO CO STRENCI ZE ZDJĘCIA",
     text: "",
     btn: "ZDROWIE",
     photos: [
@@ -79,32 +79,46 @@ const CONFIG = {
    Wietnam i Malezja to sloty na Twoje kolejne gry.                      */
 const LOCATIONS = [
   { id: "meksyk",    name: "Meksyk",    emoji: "🇲🇽", lat: 19.4,  lon: -99.1, game: "cups",
-    title: "Pod którym kapeluszem ukrył się ulubiony napój Stręci9?", desc: "Obserwuj uważnie 👀",
+    title: "Pod którym kapeluszem ukrył się ulubiony napój Strenci9?", desc: "Obserwuj uważnie 👀",
+    bg: ["assets/photos/MEKSYK/01.jpeg", "assets/photos/MEKSYK/02.jpeg", "assets/photos/MEKSYK/03.jpeg", "assets/photos/MEKSYK/04.jpeg"],
     win: { title: "DOBRZE!", text: "Ale coronki to bym się napił..." } },
   { id: "anglia",    name: "Anglia",    emoji: "🏴", lat: 53.5,  lon: -2.2,  game: "manchester",
     title: "JAKI JEST MANCHESTER?", desc: "",
+    bg: ["assets/photos/ANGLIA/01.jpg", "assets/photos/ANGLIA/02.jpg", "assets/photos/ANGLIA/03.jpg", "assets/photos/ANGLIA/04.jpg"],
     win: { title: "DOBRZE!", text: "Może nie w tabeli, ale w sercu zawsze na pierwszym.", photo: "assets/photos/ANGLIA-WIN.jpeg" } },
   { id: "hiszpania", name: "Hiszpania", emoji: "🇪🇸", lat: 38.35, lon: -0.48, game: "alicante",
     title: "Flaga Alicante", desc: "",
+    bg: ["assets/photos/HISZPANIA/01.jpg", "assets/photos/HISZPANIA/02.jpg", "assets/photos/HISZPANIA/03.jpg", "assets/photos/HISZPANIA/04.jpg"],
     win: { title: "KMWTW", text: "", photo: "assets/photos/HISZPANIA-WIN.jpg" } },
   { id: "maroko",    name: "Maroko",    emoji: "🇲🇦", lat: 33.6,  lon: -7.6,  game: "photoquiz",
     title: "Który ptak ma w zwyczaju wyjebać się na znajomych?", desc: "",
+    bg: ["assets/photos/MAROKO/01.jpg", "assets/photos/MAROKO/02.jpg", "assets/photos/MAROKO/03.jpg", "assets/photos/MAROKO/04.jpg"],
     options: [
       { img: "assets/photos/KACZKA.png", label: "KACZKA", correct: false },
       { img: "assets/photos/BOCIAN.png", label: "BOCIAN", correct: false },
       { img: "assets/photos/SOKOL.png",  label: "SOKÓŁ",  correct: true  },
     ],
     win: { title: "HARK STFU", text: "", photo: "assets/photos/MAROKO/maroko-win.PNG" } },
-  { id: "wietnam",   name: "Wietnam",   emoji: "🇻🇳", lat: 16.0,  lon: 108.0, game: "draw",
-    title: "Narysuj drogę", desc: "Przeciągnij palcem od startu do mety, nie odrywając palca." },
+  { id: "wietnam",   name: "Wietnam",   emoji: "🇻🇳", lat: 16.0,  lon: 108.0, game: "videoquiz",
+    title: "ZADANIE DLA WSZYSTKICH", desc: "",
+    video: "assets/video/nagranie-wietnam.mp4",
+    caption: "TERAZ KAŻDY KTO TO OGLĄDA ROBI ZE SWOIM DRINEM TO CO STRENCI Z KIELISZKIEM",
+    options: [
+      { label: "W POKOJU SĄ MIĘCZAKI", correct: false },
+      { label: "LEJ NASTĘPNY",         correct: true  },
+    ],
+    win: { title: "LEJ NASTĘPNY!", text: "", photo: "assets/photos/WIN-Wietnam.jpeg" } },
   { id: "indonezja", name: "Indonezja", emoji: "🇮🇩", lat: -6.2,  lon: 106.8, game: "videoquiz",
-    title: "ILE PROMILI NA TYM NAGRANIU MA STRĘCI?", desc: "Kliknij ▶, obejrzyj i zaznacz odpowiedź",
+    title: "ILE PROMILI NA TYM NAGRANIU MA STRENCI?", desc: "Kliknij ▶, obejrzyj i zaznacz odpowiedź",
     video: "assets/video/nagranie-indonezja.mp4",
+    bg: ["assets/photos/INDONEZJA/01.jpg", "assets/photos/INDONEZJA/02.jpg", "assets/photos/INDONEZJA/03.jpg", "assets/photos/INDONEZJA/04.jpg"],
+    gameover: "assets/photos/INDONEZJA/game-over.jpg", // zamiast standardowego nagrania Game Over
     options: [
       { label: "1,5 PROMILA", correct: false },
       { label: "2 PROMILE",   correct: false },
       { label: "WSZYSTKIE",   correct: true  },
-    ] },
+    ],
+    win: { title: "LECIMY DALEJ", text: "tak jak Strenci leciał z melanżem w Azji 🍻", photo: "assets/photos/INDONEZJA/win.jpg" } },
   { id: "polska",    name: "Polska",    emoji: "🇵🇱", lat: 52.2,  lon: 21.0,  game: "final",
     title: "Dom!", desc: "Wróciłeś do Polski." },
 ];

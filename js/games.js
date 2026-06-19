@@ -42,17 +42,11 @@ function gameHeader(loc) {
 
 /* ================= GRA 1: KAPELUSZE / PIWO CORONA ================= */
 function gameCups(el, loc, cb) {
-  // pasek zdjęć przewijający się w tle na dole ekranu
-  const mexImgs = ["01", "02", "03", "04"]
-    .map((n) => `<img src="assets/photos/MEKSYK/${n}.jpeg" alt="" />`)
-    .join("");
-
   el.innerHTML =
     gameHeader(loc) +
     `<div class="cups-status" id="cups-status">Naciśnij „Wymieszaj"</div>
      <div class="cups-stage" id="stage"></div>
-     <button class="btn btn-gold" id="cups-start">▶ Wymieszaj</button>
-     <div class="mex-strip" aria-hidden="true"><div class="mex-track">${mexImgs}${mexImgs}</div></div>`;
+     <button class="btn btn-gold" id="cups-start">▶ Wymieszaj</button>`;
 
   const stage = el.querySelector("#stage");
   const status = el.querySelector("#cups-status");
@@ -312,8 +306,9 @@ function gameVideoQuiz(el, loc, cb) {
     gameHeader(loc) +
     `<video class="quiz-video" controls playsinline preload="metadata">
        <source src="${loc.video}" type="video/mp4" />
-     </video>
-     <div class="quiz-opts">` +
+     </video>` +
+    (loc.caption ? `<p class="quiz-caption">${loc.caption}</p>` : "") +
+    `<div class="quiz-opts">` +
     opts
       .map(
         (o) =>
