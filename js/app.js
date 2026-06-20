@@ -118,6 +118,9 @@ function renderMap() {
 
   drawPaths(paths, pts, progress);
 
+  // główka spoczywa na aktualnej (odblokowanej) lokacji
+  placeAvatar(pts[Math.min(progress, locs.length - 1)]);
+
   // przycisk powrotu do mapy świata — tylko na mapie Polski
   document.getElementById("world-back-btn").style.display =
     currentMapId === "poland" ? "block" : "none";
@@ -141,6 +144,45 @@ function drawPaths(svg, pts, progress) {
     if (!reached) path.setAttribute("stroke-dasharray", "5 6");
     svg.appendChild(path);
   }
+}
+
+/* ---------- AWATAR (główka wędrująca po trasie) ---------- */
+function placeAvatar(pt) {
+  const av = document.getElementById("map-avatar");
+  if (!pt) return;
+  av.style.left = pt.left + "%";
+  av.style.top = pt.top + "%";
+  av.classList.add("show");
+}
+
+// przejazd główki po linii z węzła fromIdx do toIdx (kolejne lokacje)
+function travelAvatar(fromIdx, toIdx) {
+  const svg = document.getElementById("worldmap-paths");
+  const av = document.getElementById("map-avatar");
+  const segIdx = Math.min(fromIdx, toIdx);
+  const seg = svg.children[segIdx];
+  if (!seg || !av || !seg.getTotalLength) return;
+  const len = seg.getTotalLength();
+  const forward = toIdx > fromIdx;
+  // ustaw na starcie (bez mignięcia)
+  const s = seg.getPointAtLength(forward ? 0 : len);
+  av.style.left = s.x + "%";
+  av.style.top = s.y + "%";
+  av.classList.add("show");
+
+  const dur = 1700;
+  let start = null;
+  function frame(ts) {
+    if (start === null) start = ts;
+    const t = Math.min((ts - start) / dur, 1);
+    const ease = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; // easeInOut
+    const at = forward ? ease : 1 - ease;
+    const pt = seg.getPointAtLength(at * len);
+    av.style.left = pt.x + "%";
+    av.style.top = pt.y + "%";
+    if (t < 1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 }
 
 /* ---------- OTWIERANIE LOKACJI ---------- */
@@ -192,6 +234,16 @@ function openLocation(i) {
 function handleWin(i) {
   const map = MAPS[currentMapId];
   if (i + 1 > app.progress) app.progress = i + 1;
+  const loc = map.locations[i];
+
+  // PIĆ STOP itp. — bez okienka wygranej, od razu na mapę i główka jedzie dalej
+  if (loc.noWinModal) {
+    renderMap();
+    showScreen("map");
+    travelAvatar(i, i + 1);
+    return;
+  }
+
   fireConfetti();
 
   // dźwięk wygranej (z win-wideo) + ścisz muzykę
@@ -206,7 +258,6 @@ function handleWin(i) {
   } catch (e) {}
   winAudio.onended = () => unduckMusic();
 
-  const loc = map.locations[i];
   const isLastGame = i + 1 >= map.locations.length - 1; // ostatnia gra przed finałem/submapą
   const finalName = map.locations[map.locations.length - 1].name;
   const w = loc.win || {};
@@ -232,6 +283,7 @@ function handleWin(i) {
       } else {
         renderMap();
         showScreen("map");
+        travelAvatar(i, i + 1); // główka idzie po linii do kolejnej lokacji
       }
     },
   });
@@ -293,6 +345,36 @@ function showGameOver(i) {
   };
 }
 
+/* ---------- ODTWARZACZ NAGRAŃ (pełny ekran) ---------- */
+let videoOnDone = null;
+function openVideo(src, onDone) {
+  videoOnDone = onDone || null;
+  const ov = document.getElementById("video-overlay");
+  const pl = document.getElementById("video-player");
+  ov.classList.add("show");
+  duckMusic();
+  try {
+    pl.src = src;
+    pl.currentTime = 0;
+    pl.muted = false;
+    pl.volume = 1.0;
+    const p = pl.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+}
+function closeVideo() {
+  const ov = document.getElementById("video-overlay");
+  const pl = document.getElementById("video-player");
+  try { pl.pause(); } catch (e) {}
+  ov.classList.remove("show");
+  unduckMusic();
+  const done = videoOnDone;
+  videoOnDone = null;
+  if (done) done(); // np. PIĆ STOP: po nagraniu jedziemy dalej
+}
+document.getElementById("video-close").addEventListener("click", closeVideo);
+document.getElementById("video-player").addEventListener("ended", closeVideo);
+
 /* ---------- MODAL ---------- */
 const modal = document.getElementById("modal");
 function showModal({ type, title, text, photo, phText, btn, onClose }) {
@@ -326,6 +408,17 @@ function showFinal() {
       </div>
       <button class="btn btn-ghost" id="final-map">← Wróć na mapę</button>
     </div>`;
+
+  // przewijane zdjęcia w tle nagrody
+  if (f.bg && f.bg.length) {
+    const imgs = f.bg.map((src) => `<img src="${src}" alt="" />`).join("");
+    const carousel = document.createElement("div");
+    carousel.className = "bg-carousel";
+    carousel.setAttribute("aria-hidden", "true");
+    carousel.innerHTML = `<div class="bg-track">${imgs}${imgs}${imgs}</div>`;
+    screens.final.appendChild(carousel);
+  }
+
   showScreen("final");
   document
     .getElementById("final-map")
@@ -437,9 +530,11 @@ function tickTimer() {
   }
 }
 function overlayOpen() {
+  // popup co minutę czeka, gdy otwarty jest modal, Game Over LUB gra nagranie
   return (
     document.getElementById("modal").classList.contains("show") ||
-    document.getElementById("gameover").classList.contains("show")
+    document.getElementById("gameover").classList.contains("show") ||
+    document.getElementById("video-overlay").classList.contains("show")
   );
 }
 // kolejka zdjęć PIJE: przetasowana, bez powtórek; gdy się skończy — tasujemy od nowa (zapętlenie)
@@ -457,6 +552,16 @@ function nextDrinkPhoto() {
   return drinkQueue.shift();
 }
 function showDrink() {
+  const da = document.getElementById("drink-audio");
+  duckMusic();
+  try {
+    da.currentTime = 0;
+    da.muted = false;
+    da.volume = 1.0;
+    const p = da.play();
+    if (p && p.catch) p.catch(() => {});
+  } catch (e) {}
+  da.onended = () => unduckMusic();
   showModal({
     type: "drink",
     title: CONFIG.drink.title,
@@ -464,7 +569,10 @@ function showDrink() {
     photo: nextDrinkPhoto(),
     phText: "🍻",
     btn: CONFIG.drink.btn,
-    onClose: null,
+    onClose: () => {
+      try { da.pause(); } catch (e) {}
+      unduckMusic();
+    },
   });
 }
 
@@ -501,6 +609,12 @@ document.getElementById("gate-gram").addEventListener("click", () => {
     winAud.muted = false;
     winAud.volume = 0;
     winAud.play().then(() => { winAud.pause(); winAud.currentTime = 0; }).catch(() => {});
+  } catch (e) {}
+  const drinkAud = document.getElementById("drink-audio");
+  try {
+    drinkAud.muted = false;
+    drinkAud.volume = 0;
+    drinkAud.play().then(() => { drinkAud.pause(); drinkAud.currentTime = 0; }).catch(() => {});
   } catch (e) {}
   // wstępne wczytanie zdjęć PIJE (popup co minutę) — żeby zawsze były gotowe
   (CONFIG.drink.photos || []).forEach((src) => { const im = new Image(); im.src = src; });

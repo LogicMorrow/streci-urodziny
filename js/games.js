@@ -190,6 +190,67 @@ function gameAlicante(el, loc, cb) {
   });
 }
 
+/* ============ HISZPANIA: DWA PYTANIA (flaga -> popup -> utwór) ============ */
+let hiszpaniaResume = false; // po porażce w 2. pytaniu wracamy od razu do 2. pytania
+function gameHiszpania(el, loc, cb) {
+  if (hiszpaniaResume) { hiszpaniaResume = false; stage2(); }
+  else stage1();
+
+  // ETAP 1: flaga Alicante (jak wcześniej)
+  function stage1() {
+    el.innerHTML =
+      `<div class="game-flag">🇪🇸</div>
+       <p class="game-desc" style="margin-bottom:8px">Alicante leży w Hiszpanii. Flaga Hiszpanii wygląda tak:</p>
+       <img class="ref-flag" src="${FLAGS.hiszpania}" alt="flaga Hiszpanii" />
+       <h2 class="game-title" style="margin-top:14px">A jak wygląda prawdziwa flaga ALICANTE?</h2>
+       <div class="flag-choices">
+         <button class="flag-choice" data-correct="0"><img src="${FLAGS.lgbt}" alt="Flaga A"/></button>
+         <button class="flag-choice" data-correct="1"><img src="${FLAGS.dania}" alt="Flaga B"/></button>
+         <button class="flag-choice" data-correct="0"><img src="${FLAGS.izrael}" alt="Flaga C"/></button>
+       </div>`;
+    el.querySelectorAll(".flag-choice").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.correct === "1") {
+          // poprawnie -> popup, a po zamknięciu drugie pytanie
+          const q = loc.q1win || {};
+          showModal({
+            type: "win",
+            title: q.title || "DOBRZE!",
+            text: "Teraz drugie pytanie 👇",
+            photo: q.photo,
+            phText: "",
+            btn: "DALEJ ➜",
+            onClose: stage2,
+          });
+        } else cb.onLose();
+      });
+    });
+  }
+
+  // ETAP 2: pytanie ze zdjęciem (jaki utwór)
+  function stage2() {
+    const q2 = loc.q2 || {};
+    el.innerHTML =
+      `<div class="game-flag">🎧</div>
+       <h2 class="game-title">${q2.title}</h2>
+       <img class="q2-photo" src="${q2.image}" alt="" />
+       <div class="quiz-opts grid2">` +
+      (q2.options || [])
+        .map(
+          (o) =>
+            `<button class="quiz-opt" data-correct="${o.correct ? 1 : 0}">${o.label}</button>`
+        )
+        .join("") +
+      `</div>`;
+    el.querySelectorAll(".quiz-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.correct === "1") cb.onWin();
+        else { hiszpaniaResume = true; cb.onLose(); } // porażka -> retry wraca do 2. pytania
+      });
+    });
+  }
+}
+
 /* ================= GRA 4: RYSOWANIE DROGI PALCEM ================= */
 function gameDraw(el, loc, cb) {
   el.innerHTML =
@@ -303,9 +364,10 @@ function gamePhotoQuiz(el, loc, cb) {
 function gameVideoQuiz(el, loc, cb) {
   const opts = loc.options || [];
   const videoHTML = loc.video
-    ? `<video class="quiz-video" controls playsinline preload="metadata">
-         <source src="${loc.video}" type="video/mp4" />
-       </video>`
+    ? `<button class="video-card" id="video-trigger">
+         <span class="video-play-icon">▶</span>
+         <span class="video-card-text">ODTWÓRZ NAGRANIE</span>
+       </button>`
     : "";
   el.innerHTML =
     gameHeader(loc) +
@@ -320,12 +382,12 @@ function gameVideoQuiz(el, loc, cb) {
       .join("") +
     `</div>`;
 
-  // ścisz muzykę w tle, gdy gra nagranie
-  const vid = el.querySelector(".quiz-video");
-  if (vid) {
-    vid.addEventListener("play", () => { if (typeof duckMusic === "function") duckMusic(); });
-    vid.addEventListener("pause", () => { if (typeof unduckMusic === "function") unduckMusic(); });
-    vid.addEventListener("ended", () => { if (typeof unduckMusic === "function") unduckMusic(); });
+  // odtwarzanie nagrania na pełnym ekranie
+  const trigger = el.querySelector("#video-trigger");
+  if (trigger) {
+    trigger.addEventListener("click", () => {
+      if (typeof openVideo === "function") openVideo(loc.video);
+    });
   }
 
   el.querySelectorAll(".quiz-opt").forEach((btn) => {
@@ -346,13 +408,25 @@ function gamePlaceholder(el, loc, cb) {
   el.querySelector("#ph-next").addEventListener("click", cb.onWin);
 }
 
+/* ================= PIĆ STOP (postój: info + automatyczne nagranie) ================= */
+function gamePitstop(el, loc, cb) {
+  el.innerHTML =
+    `<div class="game-flag">⛽</div>
+     <h2 class="game-title">${loc.title}</h2>
+     <p class="game-desc">${loc.desc}</p>`;
+  // automatycznie odpal nagranie; po jego zakończeniu/zamknięciu — jedziemy dalej
+  if (typeof openVideo === "function") openVideo(loc.video, () => cb.onWin());
+}
+
 const GAMES = {
   cups: gameCups,
   manchester: gameManchester,
   alicante: gameAlicante,
+  hiszpania: gameHiszpania,
   photoquiz: gamePhotoQuiz,
   videoquiz: gameVideoQuiz,
   choice: gameVideoQuiz, // wybór tekstowy bez nagrania (np. Jordania)
   draw: gameDraw,
   placeholder: gamePlaceholder,
+  pitstop: gamePitstop,
 };

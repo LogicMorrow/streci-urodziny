@@ -161,6 +161,15 @@ body{
 .node:not(.locked):active .node-pin{transform:rotate(-45deg) scale(.9);}
 .node .lock{position:absolute; top:-6px; right:8px; font-size:20px;}
 
+/* główka wędrująca po trasie */
+.map-avatar{
+  position:absolute; left:0; top:0; width:46px; height:46px; border-radius:50%;
+  object-fit:cover; transform:translate(-50%,-50%); z-index:4; pointer-events:none; display:none;
+  border:3px solid var(--gold);
+  box-shadow:0 4px 14px rgba(0,0,0,.6), 0 0 0 2px rgba(0,0,0,.35);
+}
+.map-avatar.show{display:block;}
+
 @keyframes pulse{0%,100%{box-shadow:0 0 0 4px rgba(251,225,34,.25),0 8px 26px rgba(0,0,0,.55);}50%{box-shadow:0 0 0 10px rgba(251,225,34,.08),0 8px 26px rgba(0,0,0,.55);}}
 
 /* ========= GRA ========= */
@@ -216,6 +225,7 @@ body{
 .choice:active{transform:scale(.98);}
 .choice .flag-img{width:56px; height:38px; border-radius:6px; flex:none; box-shadow:0 4px 10px rgba(0,0,0,.4);}
 .ref-flag{width:132px; height:auto; border-radius:8px; box-shadow:0 6px 16px rgba(0,0,0,.45); margin:4px auto; display:inline-block;}
+.q2-photo{width:100%; max-width:320px; height:auto; border-radius:14px; margin:4px auto 18px; display:block; box-shadow:0 8px 24px rgba(0,0,0,.5);}
 
 /* gra 3: trzy wielkie flagi obok siebie */
 .flag-choices{display:flex; gap:10px; width:100%; max-width:520px; margin:18px auto 0;}
@@ -267,6 +277,39 @@ body{
 }
 .quiz-opt:active{transform:scale(.97);}
 .quiz-opt:hover{border-color:var(--gold); background:rgba(255,255,255,.1);}
+/* odpowiedzi obok siebie (2 kolumny) */
+.quiz-opts.grid2{flex-direction:row; flex-wrap:wrap; justify-content:center;}
+.quiz-opts.grid2 .quiz-opt{flex:0 0 calc(50% - 6px); font-size:24px; padding:14px 8px; line-height:1.05;}
+
+/* karta z wielkim przyciskiem PLAY (zadania z nagraniem) */
+.video-card{
+  width:100%; max-width:460px; aspect-ratio:16/9; margin:6px auto 18px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  background:linear-gradient(145deg,#1d1d24,#0e0e13); border:2px solid rgba(255,255,255,.18);
+  border-radius:18px; cursor:pointer; color:#fff; font-family:inherit;
+  box-shadow:0 10px 30px rgba(0,0,0,.5); transition:transform .12s, border-color .2s;
+}
+.video-card:active{transform:scale(.98);}
+.video-card:hover{border-color:var(--red);}
+.video-play-icon{
+  width:78px; height:78px; border-radius:50%; display:grid; place-items:center;
+  background:var(--red); color:#fff; font-size:32px; padding-left:5px;
+  box-shadow:0 8px 24px rgba(218,41,28,.5);
+}
+.video-card-text{font-family:'Bebas Neue',sans-serif; font-size:23px; letter-spacing:2px;}
+
+/* pełnoekranowy odtwarzacz nagrań */
+.video-overlay{
+  position:fixed; inset:0; z-index:65; display:none; background:#000;
+  align-items:center; justify-content:center;
+}
+.video-overlay.show{display:flex;}
+.video-player{max-width:100%; max-height:100%; width:auto; height:auto; object-fit:contain; background:#000;}
+.video-close{
+  position:absolute; top:calc(12px + var(--safe-top)); right:14px; z-index:2;
+  width:46px; height:46px; border-radius:50%; cursor:pointer; font-size:20px; color:#fff;
+  background:rgba(255,255,255,.16); border:1px solid rgba(255,255,255,.35); backdrop-filter:blur(4px);
+}
 .choice .choice-label{font-weight:700; font-size:17px;}
 .choice.blue{border-color:#1d6fd6;}
 .choice.red{border-color:var(--red);}
@@ -354,7 +397,7 @@ body{
 /* ========= FINAŁ ========= */
 .final-screen{display:none; text-align:center;}
 .final-screen.active{display:flex; flex-direction:column; align-items:center; justify-content:center;}
-.final-inner{max-width:460px; margin:0 auto; animation:pop .5s;}
+.final-inner{max-width:460px; margin:0 auto; animation:pop .5s; position:relative; z-index:1;}
 .final-trophy{font-size:80px; animation:float 2.4s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 .final-title{font-family:'Bebas Neue',sans-serif; font-size:clamp(36px,11vw,58px); margin:8px 0; letter-spacing:1px; color:var(--gold);}

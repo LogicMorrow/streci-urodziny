@@ -44,6 +44,7 @@
         </svg>
         <svg class="worldmap-paths" id="worldmap-paths" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg>
         <div class="worldmap-nodes" id="worldmap-nodes"></div>
+        <img id="map-avatar" class="map-avatar" src="assets/photos/glowa.webp" alt="" aria-hidden="true" />
       </div>
     </div>
     <div class="map-footer">Kliknij odblokowaną lokację 👆 zacznij od Meksyku 🇲🇽</div>
@@ -57,6 +58,12 @@
 
   <!-- EKRAN: FINAŁ -->
   <section id="final-screen" class="screen final-screen"></section>
+
+  <!-- Pełnoekranowy odtwarzacz nagrań (zadania z wideo) -->
+  <div id="video-overlay" class="video-overlay">
+    <button id="video-close" class="video-close" aria-label="Zamknij">✕</button>
+    <video id="video-player" class="video-player" controls playsinline></video>
+  </div>
 
   <!-- GAME OVER: nagranie + wybuchający napis (po błędnej odpowiedzi) -->
   <div id="gameover" class="gameover">
@@ -87,6 +94,11 @@
   <!-- Dźwięk wygranej (audio z win-wideo) -->
   <audio id="win-audio" preload="auto">
     <source src="assets/video/win-audio.m4a" type="audio/mp4" />
+  </audio>
+
+  <!-- Dźwięk popupu co minutę (5 s) -->
+  <audio id="drink-audio" preload="auto">
+    <source src="assets/audio/drink-sound.mp3" type="audio/mpeg" />
   </audio>
 
   <!-- Muzyka w tle (zapętlona, cicho, ścisza się przy innych dźwiękach) -->
