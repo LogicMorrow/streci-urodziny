@@ -92,6 +92,9 @@ const WORLD_LOCATIONS = [
     title: "Pod którym kapeluszem ukrył się ulubiony napój Strenci9?", desc: "Obserwuj uważnie 👀",
     bg: ["assets/photos/MEKSYK/01.webp", "assets/photos/MEKSYK/02.webp", "assets/photos/MEKSYK/03.webp", "assets/photos/MEKSYK/04.webp"],
     win: { title: "DOBRZE!", text: "Ale coronki to bym się napił...", photo: "assets/photos/MEKSYK/meksyk-win.webp" } },
+  { id: "picstop1",  name: "Pić Stop",  emoji: "⛽", lat: 40.0,  lon: -45.0, game: "pitstop", noWinModal: true,
+    title: "PIĆ STOP", desc: "To długa podróż — trzeba zatankować! ⛽",
+    video: "assets/video/przerwa-w-podrozy.mp4" },
   { id: "anglia",    name: "Anglia",    emoji: "🏴", lat: 53.5,  lon: -2.2,  game: "manchester",
     title: "JAKI JEST MANCHESTER?", desc: "",
     bg: ["assets/photos/ANGLIA/01.webp", "assets/photos/ANGLIA/02.webp", "assets/photos/ANGLIA/03.webp", "assets/photos/ANGLIA/04.webp", "assets/photos/ANGLIA/05.webp", "assets/photos/ANGLIA/06.webp", "assets/photos/ANGLIA/07.webp", "assets/photos/ANGLIA/08.webp"],
@@ -164,7 +167,7 @@ const WORLD_LOCATIONS = [
 const POLAND_LOCATIONS = [
   { id: "zamosc",   name: "Zamość",   emoji: "🏰", lat: 50.72, lon: 23.25, game: "choice",
     title: "NA JAKIE DNI STRENCI BYŁ NAJBARDZIEJ NAJEBANY?", desc: "",
-    bg: ["assets/photos/ZAMOSC/01.webp", "assets/photos/ZAMOSC/02.webp", "assets/photos/ZAMOSC/03.webp", "assets/photos/ZAMOSC/04.webp", "assets/photos/ZAMOSC/05.webp", "assets/photos/ZAMOSC/06.webp", "assets/photos/ZAMOSC/07.webp", "assets/photos/ZAMOSC/08.webp"],
+    bg: ["assets/photos/ZAMOSC/00.webp", "assets/photos/ZAMOSC/01.webp", "assets/photos/ZAMOSC/02.webp", "assets/photos/ZAMOSC/03.webp", "assets/photos/ZAMOSC/04.webp", "assets/photos/ZAMOSC/05.webp", "assets/photos/ZAMOSC/06.webp", "assets/photos/ZAMOSC/07.webp", "assets/photos/ZAMOSC/08.webp", "assets/photos/ZAMOSC/09.webp"],
     options: [
       { label: "DNI WALENIA KONIA", correct: false },
       { label: "DNI PŁODNE",        correct: false },
@@ -183,7 +186,7 @@ const POLAND_LOCATIONS = [
     ],
     gameover: "assets/photos/KRAKOW/GAME-OVER.webp",
     win: { title: "BRAWO!", text: "Teraz każdy musi się napić, sztywniutko! 🍻", photo: "assets/photos/KRAKOW/WIN.webp" } },
-  { id: "warszawa", name: "Warszawa", emoji: "🧜", lat: 52.23, lon: 21.01, game: "photoquiz", final: true,
+  { id: "warszawa", name: "Warszawa", emoji: "🧜", lat: 52.23, lon: 21.01, game: "warszawa", final: true,
     title: "KTÓRY Z TWOICH KOLEGÓW POKONAŁ CHO'GATHA NA WARSZAWSKIEJ DOMÓWCE?", desc: "",
     bg: ["assets/photos/WARSZAWA/01.webp", "assets/photos/WARSZAWA/02.webp", "assets/photos/WARSZAWA/03.webp", "assets/photos/WARSZAWA/04.webp"],
     options: [
@@ -192,8 +195,19 @@ const POLAND_LOCATIONS = [
       { img: "assets/photos/WARSZAWA/odpowiedzi/Planet.webp",  label: "PLANET", correct: false },
       { img: "assets/photos/WARSZAWA/odpowiedzi/Marcin.webp",  label: "MARCIN", correct: false },
     ],
-    gameover: "assets/photos/WARSZAWA/Warszawa-gameover.webp",
-    win: { title: "GRATULACJE!", text: "Przeszedłeś całą grę! Teraz każdy musi wypić do dna za zdrowie Strenciego! 🍻", photo: "assets/photos/WARSZAWA/Warszawa-win.webp" } },
+    gameover: "assets/photos/WARSZAWA/Warszawa-gameover.webp", // game over 1. pytania (bez zmian)
+    q1win: { title: "DOBRZE BG", text: "gumka nie pękła", photo: "assets/photos/WARSZAWA/Warszawa-win.webp" }, // popup po 1. pytaniu
+    q2: {
+      title: "JAKI JEST NAJLEPSZY KEBAB W WARSZAWIE?",
+      options: [
+        { label: "TANTUNI",    correct: true  },
+        { label: "U CIAPAKA",  correct: false },
+        { label: "EFFES",      correct: false },
+        { label: "KEBAB KING", correct: false },
+      ],
+      gameover: "assets/photos/WARSZAWA/gameover2.webp", // game over 2. pytania (nowe)
+    },
+    win: { title: "GRATULACJE!", text: "Przeszedłeś całą grę! Teraz każdy musi wypić do dna za zdrowie Strenciego! 🍻", photo: "assets/photos/WARSZAWA/win2.webp" } },
 ];
 
 /* Mapy: każda ma własny kadr (bounds), kontur (path), klucz zapisu i listę lokacji.

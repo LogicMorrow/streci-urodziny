@@ -294,6 +294,10 @@ function handleLose(i) {
 }
 
 /* ---------- GAME OVER (po błędnej odpowiedzi) ---------- */
+// jednorazowe nadpisanie zdjęcia Game Over (np. 2. pytanie Warszawy/Hiszpanii)
+let gameoverOverride = null;
+function setGameoverOverride(src) { gameoverOverride = src; }
+
 function showGameOver(i) {
   const ov = document.getElementById("gameover");
   const vid = document.getElementById("gameover-video");
@@ -301,13 +305,15 @@ function showGameOver(i) {
   const aud = document.getElementById("gameover-audio");
   const txt = document.getElementById("gameover-text");
   const loc = MAPS[currentMapId].locations[i];
+  const goImg = gameoverOverride || (loc && loc.gameover);
+  gameoverOverride = null;
 
   ov.classList.add("show");
   duckMusic(); // ścisz muzykę na czas Game Over
 
-  if (loc && loc.gameover) {
+  if (goImg) {
     // własne zdjęcie Game Over + dźwięk z nagrania GAME OVER (osobny element audio)
-    img.src = loc.gameover;
+    img.src = goImg;
     img.style.display = "block";
     vid.style.display = "none";
     try { vid.pause(); } catch (e) {}

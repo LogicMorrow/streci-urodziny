@@ -335,6 +335,73 @@ function gameDraw(el, loc, cb) {
   setTimeout(resize, 30);
 }
 
+/* ============ WARSZAWA: DWA PYTANIA (Cho'Gath -> popup -> kebab) ============ */
+let warszawaResume = false; // po porażce w 2. pytaniu wracamy od razu do 2. pytania
+function gameWarszawa(el, loc, cb) {
+  if (warszawaResume) { warszawaResume = false; stage2(); }
+  else stage1();
+
+  // ETAP 1: Cho'Gath (głowy) — bez zmian
+  function stage1() {
+    const opts = loc.options || [];
+    el.innerHTML =
+      gameHeader(loc) +
+      `<div class="photo-choices count-${opts.length}">` +
+      opts
+        .map(
+          (o) =>
+            `<button class="photo-choice" data-correct="${o.correct ? 1 : 0}">
+               <img src="${o.img}" alt="${o.label}" />
+               <span class="photo-choice-label">${o.label}</span>
+             </button>`
+        )
+        .join("") +
+      `</div>`;
+    el.querySelectorAll(".photo-choice").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.correct === "1") {
+          const q = loc.q1win || {};
+          showModal({
+            type: "win",
+            title: q.title || "DOBRZE!",
+            text: q.text || "Teraz drugie pytanie 👇",
+            photo: q.photo,
+            phText: "",
+            btn: "DALEJ ➜",
+            onClose: stage2,
+          });
+        } else cb.onLose(); // 1. pytanie źle -> loc.gameover (bez zmian)
+      });
+    });
+  }
+
+  // ETAP 2: najlepszy kebab (tekst) — własne win i game over
+  function stage2() {
+    const q2 = loc.q2 || {};
+    el.innerHTML =
+      `<div class="game-flag">🥙</div>
+       <h2 class="game-title">${q2.title}</h2>
+       <div class="quiz-opts grid2">` +
+      (q2.options || [])
+        .map(
+          (o) =>
+            `<button class="quiz-opt" data-correct="${o.correct ? 1 : 0}">${o.label}</button>`
+        )
+        .join("") +
+      `</div>`;
+    el.querySelectorAll(".quiz-opt").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        if (btn.dataset.correct === "1") cb.onWin();
+        else {
+          warszawaResume = true;
+          if (q2.gameover && typeof setGameoverOverride === "function") setGameoverOverride(q2.gameover);
+          cb.onLose();
+        }
+      });
+    });
+  }
+}
+
 /* ================= QUIZ ZE ZDJĘCIAMI (np. Maroko) ================= */
 function gamePhotoQuiz(el, loc, cb) {
   const opts = loc.options || [];
@@ -423,6 +490,7 @@ const GAMES = {
   manchester: gameManchester,
   alicante: gameAlicante,
   hiszpania: gameHiszpania,
+  warszawa: gameWarszawa,
   photoquiz: gamePhotoQuiz,
   videoquiz: gameVideoQuiz,
   choice: gameVideoQuiz, // wybór tekstowy bez nagrania (np. Jordania)
